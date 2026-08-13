@@ -1,0 +1,17 @@
+# getOwnerHQ
+
+getOwnerHQ is a Multi-tenant SaaS platform built for Indian gym owners. 
+
+## Features
+- Gym Member self-registrations via QR Code
+- Dashboard for tracking expiring memberships
+- Manual WhatsApp reminders
+- Payments Ledger
+
+## Technical Stack
+- Frontend: React, Vite, Tailwind CSS
+- Backend/Database: Supabase (PostgreSQL)
+
+## Useful Links
+- [Sign Up](/signup)
+- [Login](/login)

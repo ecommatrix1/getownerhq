@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#FAFAF8] text-[#1C1F26] font-sans antialiased dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200;
+  }
+}
+
+/* Custom Print Styles for A5 Standee Poster */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-standee, #printable-standee * {
+    visibility: visible;
+  }
+  #printable-standee {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100vh !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 2rem !important;
+  }
+}

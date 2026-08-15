@@ -54,6 +54,7 @@ export interface Payment {
   receipt_number: string;
   paid_at: string;
   created_at: string;
+  txn_ref?: string | null;
 }
 
 export interface ReminderLog {

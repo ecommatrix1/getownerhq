@@ -27,6 +27,7 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
   );
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>("UPI");
+  const [txnRef, setTxnRef] = useState<string>("");
   const [expiryDate, setExpiryDate] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -122,7 +123,8 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
       expiryDate,
       amountPaid,
       paymentMode,
-      newDues
+      newDues,
+      txnRef.trim() || undefined
     );
 
     setLoading(false);
@@ -357,6 +359,20 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Transaction Ref / UTR / Card # <span className="text-slate-400 font-normal lowercase">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={txnRef}
+                    onChange={(e) => setTxnRef(e.target.value)}
+                    placeholder={paymentMode === 'UPI' ? 'e.g. UTR 42398129031' : paymentMode === 'Card' ? 'e.g. Card Last 4 (4821)' : 'Reference / Txn ID'}
+                    disabled={loading}
+                    className="w-full text-xs font-mono p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                  />
                 </div>
               </div>
             </div>

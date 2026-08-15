@@ -72,11 +72,12 @@ export const PaymentsLedger: React.FC = () => {
   const filteredPayments = (payments || []).filter((pay) => {
     if (!pay) return false;
     const member = members.find(m => m && m.id === pay.member_id);
-    const memberName = member && member.full_name ? member.full_name.toLowerCase() : '';
-    const receiptNum = pay.receipt_number ? pay.receipt_number.toLowerCase() : '';
-    const matchesSearch = !searchQuery || 
-      memberName.includes(searchQuery.toLowerCase()) || 
-      receiptNum.includes(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      !searchQuery ||
+      (member && member.full_name.toLowerCase().includes(query)) ||
+      (pay.receipt_number && pay.receipt_number.toLowerCase().includes(query)) ||
+      (pay.txn_ref && pay.txn_ref.toLowerCase().includes(query));
 
     let payDate = '';
     if (typeof pay.paid_at === 'string') {
@@ -107,7 +108,7 @@ export const PaymentsLedger: React.FC = () => {
   const exportToCSV = () => {
     if (filteredPayments.length === 0) return;
 
-    const headers = ['Receipt Number', 'Member Name', 'Plan', 'Amount (INR)', 'Payment Mode', 'Payment Date'];
+    const headers = ['Receipt Number', 'Member Name', 'Plan', 'Amount (INR)', 'Payment Mode', 'Txn Reference', 'Payment Date'];
     const rows = filteredPayments.map(p => {
       const member = members.find(m => m && m.id === p.member_id);
       const paidDate = p.paid_at && !isNaN(new Date(p.paid_at).getTime())
@@ -119,6 +120,7 @@ export const PaymentsLedger: React.FC = () => {
         `"${p.plan_name || 'Pass'}"`,
         p.amount || 0,
         `"${p.payment_mode || 'Cash'}"`,
+        `"${p.txn_ref || ''}"`,
         paidDate
       ];
     });
@@ -238,9 +240,16 @@ export const PaymentsLedger: React.FC = () => {
 
                   return (
                     <tr key={p.id} className="hover:bg-slate-50 transition-colors text-slate-700">
-                      <td className="p-4 font-bold text-slate-900 flex items-center gap-2">
-                        <Receipt className="w-4 h-4 text-slate-400" />
-                        {p.receipt_number}
+                      <td className="p-4 font-bold text-slate-900">
+                        <div className="flex items-center gap-2">
+                          <Receipt className="w-4 h-4 text-slate-400" />
+                          {p.receipt_number}
+                        </div>
+                        {p.txn_ref && (
+                          <div className="text-[11px] font-mono text-slate-500 font-normal mt-0.5 pl-6">
+                            Ref: <span className="font-bold text-slate-700">{p.txn_ref}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="p-4 font-sans font-bold text-slate-900">
                         {member ? member.full_name : 'Walk-in Member'}

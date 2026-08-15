@@ -259,12 +259,14 @@ export const api = {
   async recordPartialPayment(
     memberId: string,
     amount: number,
-    paymentMode: string
+    paymentMode: string,
+    txnRef?: string
   ) {
     const { data, error } = await supabase.rpc("record_partial_payment", {
       p_member_id: memberId,
       p_amount: amount,
       p_payment_mode: paymentMode,
+      p_txn_ref: txnRef || null,
     });
     if (error) return { success: false, message: error.message };
     return data as { success: boolean; message: string; receipt_number?: string };
@@ -289,7 +291,8 @@ export const api = {
     expiryDate: string,
     amountPaid: number,
     paymentMode: string,
-    newDues: number = 0
+    newDues: number = 0,
+    txnRef?: string
   ) {
     const { data, error } = await supabase.rpc("activate_member_plan", {
       p_member_id: memberId,
@@ -298,7 +301,8 @@ export const api = {
       p_expiry_date: expiryDate,
       p_amount_paid: amountPaid,
       p_payment_mode: paymentMode,
-      p_new_dues: newDues
+      p_new_dues: newDues,
+      p_txn_ref: txnRef || null
     });
 
     if (error) {

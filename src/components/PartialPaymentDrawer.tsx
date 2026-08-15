@@ -18,6 +18,7 @@ export const PartialPaymentDrawer: React.FC<PartialPaymentDrawerProps> = ({
 }) => {
   const [amount, setAmount] = useState<number | ''>('');
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'Card' | 'Bank Transfer'>('UPI');
+  const [txnRef, setTxnRef] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [successMode, setSuccessMode] = useState(false);
   const [receiptNo, setReceiptNo] = useState('');
@@ -31,7 +32,7 @@ export const PartialPaymentDrawer: React.FC<PartialPaymentDrawerProps> = ({
     setLoading(true);
     // Since we'll need to add record_partial_payment to api.ts, we use supabase directly or update api.ts.
     // Assuming api.recordPartialPayment is implemented.
-    const res = await api.recordPartialPayment(member.id, Number(amount), paymentMode);
+    const res = await api.recordPartialPayment(member.id, Number(amount), paymentMode, txnRef.trim() || undefined);
     setLoading(false);
 
     if (res.success) {
@@ -148,6 +149,19 @@ export const PartialPaymentDrawer: React.FC<PartialPaymentDrawerProps> = ({
                       <Icon className="w-4 h-4" /> {mode}
                     </button>
                   ))}
+                </div>
+
+                <div className="pt-2">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-1">
+                    Txn Ref / UTR / Card # <span className="text-slate-400 font-normal lowercase">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={txnRef}
+                    onChange={(e) => setTxnRef(e.target.value)}
+                    placeholder={paymentMode === 'UPI' ? 'e.g. UTR 42398129031' : 'Reference / Txn ID'}
+                    className="w-full p-2.5 text-xs font-mono border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl focus:ring-1 focus:ring-blue-500 outline-none dark:text-white"
+                  />
                 </div>
               </div>
 

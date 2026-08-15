@@ -166,10 +166,12 @@ export function App() {
     cleanPath === '/pmnt' ||
     cleanPath === '/dashboard/pmnt' ||
     cleanPath === '/dashboard/payment' ||
-    cleanPath.includes('payment') ||
+    (cleanPath.includes('payment') && !cleanPath.includes('plan')) ||
     cleanPath.includes('pmnt')
   ) {
     dashboardContent = <PaymentsLedger />;
+  } else if (cleanPath === '/dashboard/plans' || cleanPath === '/plans') {
+    dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
   } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {
     dashboardContent = <WhatsAppTemplatesPage />;
   } else if (cleanPath === '/dashboard/settings' || cleanPath === '/settings') {

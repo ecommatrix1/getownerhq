@@ -64,6 +64,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     if (itemPath === '/dashboard/payments') {
       return ['/payments', '/payment', '/pmnt', '/dashboard/payment', '/dashboard/pmnt'].includes(clean);
     }
+    if (itemPath === '/dashboard/plans') return clean === '/plans' || clean === '/dashboard/plans';
     if (itemPath === '/dashboard/whatsapp') return clean === '/whatsapp';
     if (itemPath === '/dashboard/settings') return clean === '/settings';
     if (itemPath === '/dashboard/billing') return clean === '/billing';

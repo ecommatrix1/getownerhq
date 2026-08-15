@@ -24,6 +24,11 @@ export const PaymentsLedger: React.FC = () => {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 25;
   });
 
+  // Reset pagination to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, startDate, endDate]);
+
   useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
@@ -214,7 +219,7 @@ export const PaymentsLedger: React.FC = () => {
                 </tr>
               ) : (
                 paginatedPayments.map((p) => {
-                  const member = members.find(m => m.id === p.member_id);
+                  const member = members.find(m => m && m.id === p.member_id);
 
                   return (
                     <tr key={p.id} className="hover:bg-slate-50 transition-colors text-slate-700">

@@ -24,7 +24,8 @@ export const PrintableStandeeModal: React.FC<PrintableStandeeModalProps> = ({
   if (!isOpen || !gym) return null;
 
   // Domain link target for QR code
-  const publicUrl = `https://getownerhq.com/r/${gym.slug}`;
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.getownerhq.in';
+  const publicUrl = `${baseUrl}/#/r/${gym.slug}`;
 
   const handlePrint = () => {
     window.print();

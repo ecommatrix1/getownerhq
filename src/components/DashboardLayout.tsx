@@ -34,18 +34,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  if (loading) {
+  React.useEffect(() => {
+    if (!loading && !safeGym) {
+      onNavigate('/login');
+    }
+  }, [loading, safeGym, onNavigate]);
+
+  if (loading || !safeGym) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
-  }
-
-  // If no gym found after loading, redirect to login
-  if (!safeGym) {
-    onNavigate('/login');
-    return null;
   }
 
   const navItems = [
@@ -57,6 +57,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { label: 'Settings', path: '/dashboard/settings', icon: Settings },
     { label: 'Billing', path: '/dashboard/billing', icon: ShieldAlert },
   ];
+
+  const isRouteActive = (itemPath: string) => {
+    const clean = currentPath.toLowerCase();
+    if (clean === itemPath.toLowerCase()) return true;
+    if (itemPath === '/dashboard/payments') {
+      return ['/payments', '/payment', '/pmnt', '/dashboard/payment', '/dashboard/pmnt'].includes(clean);
+    }
+    if (itemPath === '/dashboard/whatsapp') return clean === '/whatsapp';
+    if (itemPath === '/dashboard/settings') return clean === '/settings';
+    if (itemPath === '/dashboard/billing') return clean === '/billing';
+    return false;
+  };
 
   const daysRemainingInTrial = () => {
     if (safeGym.subscription_status !== 'trial') return 0;
@@ -182,7 +194,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <nav className="space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const active = currentPath === item.path;
+                const active = isRouteActive(item.path);
                 return (
                   <button
                     key={item.path}
@@ -232,7 +244,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-2 pb-safe z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const active = currentPath === item.path;
+          const active = isRouteActive(item.path);
           return (
             <button
               key={item.path}

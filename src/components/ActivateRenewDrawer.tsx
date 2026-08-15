@@ -162,30 +162,59 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
 
         {/* Form Body */}
         {successData ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-6 text-center">
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center border-4 border-emerald-50">
+          <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-5 text-center">
+            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center border-4 border-emerald-50 shadow-sm animate-bounce">
               <CheckCircle className="w-10 h-10 text-emerald-600" />
             </div>
             <div>
-              <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Activation Successful!</h3>
-              <p className="text-slate-500 font-medium">Receipt: <span className="font-mono text-slate-900">{successData.receiptNumber}</span></p>
+              <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-full mb-2 border border-emerald-200">
+                Plan Status: Activated & Paid
+              </span>
+              <h3 className="text-2xl font-extrabold text-slate-900 mb-1">Plan Activated Successfully!</h3>
+              <p className="text-sm text-slate-500 font-medium">Receipt #: <span className="font-mono font-bold text-slate-900">{successData.receiptNumber}</span></p>
             </div>
             
-            <a 
-              href={`https://wa.me/91${member.mobile}?text=${encodeURIComponent(`Thanks for renewing at ${gym?.name}, ${member.full_name}! Your plan is now active until ${new Date(expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Receipt: ${successData.receiptNumber}. See you at the gym!`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-4 bg-emerald-600 text-white rounded-xl font-extrabold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
-            >
-              Send WhatsApp Confirmation
-            </a>
-            
-            <button
-              onClick={onClose}
-              className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors"
-            >
-              Close
-            </button>
+            <div className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left text-xs font-mono space-y-2">
+              <div className="flex justify-between text-slate-500">
+                <span>Member:</span>
+                <span className="font-bold text-slate-900">{member.full_name}</span>
+              </div>
+              <div className="flex justify-between text-slate-500">
+                <span>Amount Paid:</span>
+                <span className="font-bold text-emerald-600">₹{amountPaid} ({paymentMode})</span>
+              </div>
+              <div className="flex justify-between text-slate-500">
+                <span>Valid Until:</span>
+                <span className="font-bold text-slate-900">{expiryDate}</span>
+              </div>
+            </div>
+
+            <div className="w-full space-y-2.5">
+              <a 
+                href={`https://wa.me/91${member.mobile}?text=${encodeURIComponent(`Thanks for your payment at ${gym?.name}, ${member.full_name}! Your membership is active until ${new Date(expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Receipt: ${successData.receiptNumber}.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-extrabold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 active:scale-95 text-sm"
+              >
+                Send WhatsApp Receipt & Pass
+              </a>
+
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="w-full py-3 bg-white border border-slate-300 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
+              >
+                <Printer className="w-4 h-4 text-slate-500" /> Print Tax Receipt
+              </button>
+              
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors text-sm"
+              >
+                Done / Return to Dashboard
+              </button>
+            </div>
           </div>
         ) : (
           <>

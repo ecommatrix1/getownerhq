@@ -10,6 +10,7 @@ import { PartialPaymentDrawer } from '../components/PartialPaymentDrawer';
 import { AddDueModal } from '../components/AddDueModal';
 import { AddMemberModal } from '../components/AddMemberModal';
 import { useDashboard } from '../components/DashboardContext';
+import { RevenueAnalyticsChart } from '../components/RevenueAnalyticsChart';
 import { getEffectiveStatus, parseDateOnly, getDaysUntilExpiry } from '../utils/status';
 
 interface DashboardOverviewProps {
@@ -32,7 +33,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
+    const saved = localStorage.getItem('ownerhq_items_per_page');
+    return saved ? Number(saved) : 10;
+  });
 
   const [selectedMemberForRenew, setSelectedMemberForRenew] = useState<Member | null>(null);
   const [isRenewDrawerOpen, setIsRenewDrawerOpen] = useState(false);
@@ -232,6 +236,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
       </div>
 
+      {/* 12-Month Revenue Comparison & Growth Analytics */}
+      <RevenueAnalyticsChart payments={payments} />
+
       {/* Search & Sort */}
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="relative flex-1">
@@ -409,10 +416,37 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         
         {/* Pagination Footer */}
         {filteredAndSortedMembers.length > 0 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-            <div className="text-sm text-slate-500 dark:text-slate-400">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedMembers.length)} of {filteredAndSortedMembers.length} members
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+              <span>
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedMembers.length)} of {filteredAndSortedMembers.length} members
+              </span>
+
+              {/* Rows Per Page Selector */}
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                <span>Rows per page:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setItemsPerPage(val);
+                    setCurrentPage(1);
+                    localStorage.setItem('ownerhq_items_per_page', String(val));
+                  }}
+                  className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={250}>250</option>
+                  <option value={500}>500</option>
+                  <option value={1000}>1000 (All)</option>
+                </select>
+              </div>
             </div>
+
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -421,12 +455,12 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-sm">
-                {currentPage}
+              <button className="h-8 px-3 flex items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs">
+                Page {currentPage} of {totalPages || 1}
               </button>
               <button 
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || totalPages === 0}
                 className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />

@@ -80,6 +80,7 @@ export const TermsPage: React.FC<TermsPageProps> = ({ onNavigate }) => {
                 For any questions or concerns regarding these Terms, please contact us at:
               </p>
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mt-4 space-y-2 text-sm font-medium text-slate-700">
+                <p><span className="text-slate-400">Phone / WhatsApp:</span> <a href="tel:+918876661110" className="text-blue-600 hover:underline">+91 8876661110</a></p>
                 <p><span className="text-slate-400">Email:</span> founderkraft@gmail.com</p>
                 <p><span className="text-slate-400">Location:</span> Assam, India</p>
               </div>

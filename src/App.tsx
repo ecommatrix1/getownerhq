@@ -13,13 +13,37 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { DashboardProvider } from './components/DashboardContext';
 import { ThemeProvider } from './components/ThemeContext';
 import { PrintableStandeeModal } from './components/PrintableStandeeModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy load authenticated dashboard components for bundle optimization
-const DashboardOverview = React.lazy(() => import('./pages/DashboardOverview').then(module => ({ default: module.DashboardOverview })));
-const PaymentsLedger = React.lazy(() => import('./pages/PaymentsLedger').then(module => ({ default: module.PaymentsLedger })));
-const WhatsAppTemplatesPage = React.lazy(() => import('./pages/WhatsAppTemplates').then(module => ({ default: module.WhatsAppTemplatesPage })));
-const SettingsPage = React.lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })));
-const BillingPage = React.lazy(() => import('./pages/BillingPage').then(module => ({ default: module.BillingPage })));
+// Helper to auto-retry lazy loaded chunks if deployment chunk hash changed
+function lazyWithRetry<P = {}>(
+  componentImport: () => Promise<any>,
+  exportName?: string
+): React.LazyExoticComponent<React.ComponentType<P>> {
+  return React.lazy(async () => {
+    try {
+      const module = await componentImport();
+      const comp = exportName && module[exportName] ? module[exportName] : module.default || module;
+      return { default: comp };
+    } catch (error) {
+      console.error('Lazy chunk load failed:', error);
+      const pageHasBeenRefreshed = sessionStorage.getItem('page_refreshed_on_chunk_err');
+      if (!pageHasBeenRefreshed) {
+        sessionStorage.setItem('page_refreshed_on_chunk_err', 'true');
+        window.location.reload();
+        return new Promise(() => {});
+      }
+      throw error;
+    }
+  });
+}
+
+// Lazy load authenticated dashboard components with retry logic
+const DashboardOverview = lazyWithRetry<{ onNavigate: (path: string) => void }>(() => import('./pages/DashboardOverview'), 'DashboardOverview');
+const PaymentsLedger = lazyWithRetry(() => import('./pages/PaymentsLedger'), 'PaymentsLedger');
+const WhatsAppTemplatesPage = lazyWithRetry(() => import('./pages/WhatsAppTemplates'), 'WhatsAppTemplatesPage');
+const SettingsPage = lazyWithRetry<{ onOpenStandee: () => void }>(() => import('./pages/SettingsPage'), 'SettingsPage');
+const BillingPage = lazyWithRetry(() => import('./pages/BillingPage'), 'BillingPage');
 
 // Fallback loader
 const PageLoader = () => (
@@ -29,23 +53,50 @@ const PageLoader = () => (
 );
 
 export function App() {
-  const [currentPath, setCurrentPath] = useState<string>(() => {
+  const resolveCurrentRoute = () => {
     const hash = window.location.hash.replace('#', '');
-    return hash || '/';
-  });
+    if (hash) return hash;
+    const pathname = window.location.pathname;
+    if (pathname && pathname !== '/') return pathname;
+    return '/';
+  };
+
+  const [currentPath, setCurrentPath] = useState<string>(resolveCurrentRoute);
 
   const [isStandeeModalOpen, setIsStandeeModalOpen] = useState(false);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      setCurrentPath(hash || '/');
+    const handleLocationChange = () => {
+      setCurrentPath(resolveCurrentRoute());
       window.scrollTo(0, 0);
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handleLocationChange);
+    };
   }, []);
+
+  useEffect(() => {
+    // Dynamically update Canonical URL per route
+    let canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    const cleanPath = currentPath === '/' ? '' : currentPath;
+    const fullCanonicalUrl = `https://getownerhq.in${cleanPath}`;
+    canonicalLink.href = fullCanonicalUrl;
+
+    const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+    if (ogUrl) ogUrl.content = fullCanonicalUrl;
+
+    const twitterUrl = document.querySelector<HTMLMetaElement>('meta[property="twitter:url"]');
+    if (twitterUrl) twitterUrl.content = fullCanonicalUrl;
+  }, [currentPath]);
 
   const navigate = (path: string) => {
     window.location.hash = path;
@@ -61,19 +112,7 @@ export function App() {
 
   // Route 2: Public Marketing Homepage
   if (currentPath === '/') {
-    return (
-      <>
-        <MarketingPage onNavigate={navigate} />
-        <button
-          onClick={() => {
-            throw new Error("Sentry Test Error from getOwnerHQ!");
-          }}
-          className="fixed bottom-5 right-5 z-[9999] bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition-all active:scale-95 text-sm"
-        >
-          🚨 Test Sentry Error
-        </button>
-      </>
-    );
+    return <MarketingPage onNavigate={navigate} />;
   }
 
   // Route 3: Owner Sign Up
@@ -106,15 +145,23 @@ export function App() {
   }
 
   // Route 6: Authenticated Owner Dashboard Pages
+  const cleanPath = currentPath.toLowerCase();
   let dashboardContent = <DashboardOverview onNavigate={navigate} />;
 
-  if (currentPath === '/dashboard/payments') {
+  if (
+    cleanPath === '/dashboard/payments' ||
+    cleanPath === '/payments' ||
+    cleanPath === '/payment' ||
+    cleanPath === '/pmnt' ||
+    cleanPath === '/dashboard/pmnt' ||
+    cleanPath === '/dashboard/payment'
+  ) {
     dashboardContent = <PaymentsLedger />;
-  } else if (currentPath === '/dashboard/whatsapp') {
+  } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {
     dashboardContent = <WhatsAppTemplatesPage />;
-  } else if (currentPath === '/dashboard/settings') {
+  } else if (cleanPath === '/dashboard/settings' || cleanPath === '/settings') {
     dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
-  } else if (currentPath === '/dashboard/billing') {
+  } else if (cleanPath === '/dashboard/billing' || cleanPath === '/billing') {
     dashboardContent = <BillingPage />;
   }
 
@@ -126,9 +173,11 @@ export function App() {
           onNavigate={navigate}
           onOpenStandee={() => setIsStandeeModalOpen(true)}
         >
-          <Suspense fallback={<PageLoader />}>
-            {dashboardContent}
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              {dashboardContent}
+            </Suspense>
+          </ErrorBoundary>
         </DashboardLayout>
       </DashboardProvider>
 

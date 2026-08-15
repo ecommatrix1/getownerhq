@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Download, Calendar, Search, Receipt, Loader2 } from 'lucide-react';
+import { CreditCard, Download, Calendar, Search, Receipt, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
 import { Payment, Member, GymPlan } from '../types';
 import { useDashboard } from '../components/DashboardContext';
+import { RevenueAnalyticsChart } from '../components/RevenueAnalyticsChart';
 
 export const PaymentsLedger: React.FC = () => {
   const { gym } = useDashboard();
@@ -15,22 +16,47 @@ export const PaymentsLedger: React.FC = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  // Pagination state (must be at top level before conditional returns)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
+    const saved = localStorage.getItem('ownerhq_payments_per_page');
+    const parsed = saved ? Number(saved) : 25;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 25;
+  });
+
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
       if (gym) {
         setLoading(true);
-        const [fetchedPayments, fetchedMembers, fetchedPlans] = await Promise.all([
-          api.getPayments(gym.id),
-          api.getMembers(gym.id),
-          api.getGymPlans(gym.id)
-        ]);
-        setPayments(fetchedPayments);
-        setMembers(fetchedMembers);
-        setPlans(fetchedPlans);
+        try {
+          const [fetchedPayments, fetchedMembers, fetchedPlans] = await Promise.all([
+            api.getPayments(gym.id),
+            api.getMembers(gym.id),
+            api.getGymPlans(gym.id)
+          ]);
+          if (isMounted) {
+            setPayments(fetchedPayments || []);
+            setMembers(fetchedMembers || []);
+            setPlans(fetchedPlans || []);
+          }
+        } catch (err) {
+          console.error('Error fetching payments ledger data:', err);
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }
+      } else {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
     fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, [gym]);
 
   if (loading) {
@@ -44,21 +70,38 @@ export const PaymentsLedger: React.FC = () => {
   if (!gym) return null;
 
   // Filter payments
-  const filteredPayments = payments.filter((pay) => {
-    const member = members.find(m => m.id === pay.member_id);
-    const memberName = member ? member.full_name.toLowerCase() : '';
+  const filteredPayments = (payments || []).filter((pay) => {
+    if (!pay) return false;
+    const member = members.find(m => m && m.id === pay.member_id);
+    const memberName = member && member.full_name ? member.full_name.toLowerCase() : '';
+    const receiptNum = pay.receipt_number ? pay.receipt_number.toLowerCase() : '';
     const matchesSearch = !searchQuery || 
       memberName.includes(searchQuery.toLowerCase()) || 
-      pay.receipt_number.toLowerCase().includes(searchQuery.toLowerCase());
+      receiptNum.includes(searchQuery.toLowerCase());
 
-    const payDate = pay.paid_at.split('T')[0];
+    let payDate = '';
+    if (typeof pay.paid_at === 'string') {
+      payDate = pay.paid_at.split('T')[0];
+    } else if (pay.paid_at) {
+      try {
+        payDate = new Date(pay.paid_at).toISOString().split('T')[0];
+      } catch {
+        payDate = '';
+      }
+    }
     const matchesStart = !startDate || payDate >= startDate;
     const matchesEnd = !endDate || payDate <= endDate;
 
     return matchesSearch && matchesStart && matchesEnd;
   });
 
-  const totalCollected = filteredPayments.reduce((acc, curr) => acc + Number(curr.amount), 0);
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+  const paginatedPayments = filteredPayments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalCollected = filteredPayments.reduce((acc, curr) => acc + (Number(curr?.amount) || 0), 0);
 
   // Client-side CSV export
   const exportToCSV = () => {
@@ -66,14 +109,17 @@ export const PaymentsLedger: React.FC = () => {
 
     const headers = ['Receipt Number', 'Member Name', 'Plan', 'Amount (INR)', 'Payment Mode', 'Payment Date'];
     const rows = filteredPayments.map(p => {
-      const member = members.find(m => m.id === p.member_id);
+      const member = members.find(m => m && m.id === p.member_id);
+      const paidDate = p.paid_at && !isNaN(new Date(p.paid_at).getTime())
+        ? new Date(p.paid_at).toLocaleDateString()
+        : 'N/A';
       return [
-        p.receipt_number,
+        `"${p.receipt_number || ''}"`,
         `"${member?.full_name || 'Member'}"`,
         `"${p.plan_name || 'Pass'}"`,
-        p.amount,
-        p.payment_mode,
-        new Date(p.paid_at).toLocaleDateString()
+        p.amount || 0,
+        `"${p.payment_mode || 'Cash'}"`,
+        paidDate
       ];
     });
 
@@ -81,7 +127,7 @@ export const PaymentsLedger: React.FC = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `payments_ledger_${gym.slug}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `payments_ledger_${gym.slug || 'export'}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -107,6 +153,9 @@ export const PaymentsLedger: React.FC = () => {
           Export CSV Report
         </button>
       </div>
+
+      {/* 12-Month Revenue Comparison Graph */}
+      <RevenueAnalyticsChart payments={payments} />
 
       {/* Summary card & date filter bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -171,7 +220,7 @@ export const PaymentsLedger: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredPayments.map((p) => {
+                paginatedPayments.map((p) => {
                   const member = members.find(m => m.id === p.member_id);
 
                   return (
@@ -195,11 +244,13 @@ export const PaymentsLedger: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-4 text-slate-500">
-                        {new Date(p.paid_at).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
+                        {p.paid_at && !isNaN(new Date(p.paid_at).getTime())
+                          ? new Date(p.paid_at).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })
+                          : 'N/A'}
                       </td>
                     </tr>
                   );
@@ -208,8 +259,64 @@ export const PaymentsLedger: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        {filteredPayments.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 bg-slate-50">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+              <span>
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredPayments.length)} of {filteredPayments.length} receipts
+              </span>
+
+              {/* Rows Per Page Selector */}
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span>Rows per page:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setItemsPerPage(val);
+                    setCurrentPage(1);
+                    localStorage.setItem('ownerhq_payments_per_page', String(val));
+                  }}
+                  className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={250}>250</option>
+                  <option value={500}>500</option>
+                  <option value={1000}>1000 (All)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button className="h-8 px-3 flex items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs">
+                Page {currentPage} of {totalPages || 1}
+              </button>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
     </div>
   );
 };
+
+export default PaymentsLedger;

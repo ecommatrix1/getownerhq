@@ -342,7 +342,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
             </p>
 
             <div className="bg-white/10 p-3 rounded-xl border border-white/20 text-xs font-mono font-medium mb-6 truncate text-blue-400">
-              getownerhq.com/r/{gym.slug}
+              getownerhq.in/#/r/{gym.slug}
             </div>
 
             <button

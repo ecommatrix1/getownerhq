@@ -46,6 +46,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div>
             <h4 className="text-xs font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4">Contact & Support</h4>
             <ul className="space-y-3 text-sm">
+              <li><a href="tel:+918876661110" className="hover:text-[#5B6CFF] transition-colors block">Phone / WhatsApp: +91 8876661110</a></li>
               <li><a href="mailto:founderkraft@gmail.com" className="hover:text-[#5B6CFF] transition-colors block">Email: founderkraft@gmail.com</a></li>
               <li className="text-slate-400 block text-xs">Address: Assam, India</li>
               <li><button onClick={() => onNavigate('/terms')} className="hover:text-[#5B6CFF] transition-colors">Support & Help</button></li>

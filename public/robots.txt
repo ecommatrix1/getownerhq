@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://getownerhq.com/sitemap.xml
+Sitemap: https://www.getownerhq.in/sitemap.xml
+Sitemap: https://getownerhq.in/sitemap.xml

@@ -54,11 +54,10 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
   // Generate Dummy OTP
   const generateDummyOtp = () => Math.floor(1000 + Math.random() * 9000).toString();
 
-  // Step 1: Send OTP
-  const handleRequestOtp = async (e: React.FormEvent) => {
+  // Direct Member Registration Submission
+  const handleSubmitRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    setOtpMessage('');
 
     const cleanName = fullName.trim();
     const cleanMobile = mobile.replace(/\D/g, '');
@@ -73,53 +72,15 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
     }
 
     setLoading(true);
-
-    // Because SMS is not configured yet, we simulate the OTP sent.
-    // Wait a sec to feel real
-    await new Promise(resolve => setTimeout(resolve, 600));
-    const newOtp = generateDummyOtp();
-    setSentOtpDemo(newOtp);
-    setOtpMessage(`OTP sent successfully to ${mobile}.`);
-    setStep(2);
-    setLoading(false);
-  };
-
-  // Step 2: Verify OTP and Register Member
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg('');
-
-    if (!otpCode || otpCode.length < 4) {
-      setErrorMsg('Please enter the 4-digit verification code sent via SMS.');
-      return;
-    }
-
-    if (otpCode !== sentOtpDemo) {
-      setErrorMsg('Invalid OTP code. Please check and try again.');
-      return;
-    }
-
-    setLoading(true);
-    const cleanMobile = mobile.replace(/\D/g, '');
-    
-    // Register member in database as status='pending'
-    const regRes = await api.registerMemberPublic(gym.id, fullName, cleanMobile, joinDate);
+    const regRes = await api.registerMemberPublic(gym.id, cleanName, cleanMobile, joinDate);
     setLoading(false);
 
     if (!regRes.success) {
-      setErrorMsg(regRes.message);
-      setStep(1); // Go back to step 1 if duplicate or DB error
+      setErrorMsg(regRes.message || 'Registration failed. Please try again.');
       return;
     }
 
-    setStep(3); // Success Screen
-  };
-
-  const handleResendOtp = () => {
-    setErrorMsg('');
-    const newOtp = generateDummyOtp();
-    setSentOtpDemo(newOtp);
-    setOtpMessage('A new verification code has been sent via SMS.');
+    setStep(3); // Instant Success Screen
   };
 
   return (
@@ -145,18 +106,13 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
         
         {/* Progress indicator */}
         <div className="flex items-center justify-between mb-8 text-xs font-bold text-slate-400 uppercase tracking-wider">
-          <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-blue-600' : ''}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 1 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>1</span>
+          <div className={`flex items-center gap-1.5 ${step === 1 ? 'text-blue-600' : ''}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step === 1 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>1</span>
             Your Details
           </div>
           <div className="h-0.5 flex-1 bg-slate-200 mx-3"></div>
-          <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-blue-600' : ''}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 2 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>2</span>
-            SMS OTP
-          </div>
-          <div className="h-0.5 flex-1 bg-slate-200 mx-3"></div>
           <div className={`flex items-center gap-1.5 ${step === 3 ? 'text-emerald-600' : ''}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step === 3 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>3</span>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step === 3 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>2</span>
             Pass Ready
           </div>
         </div>
@@ -170,7 +126,7 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
           </div>
         )}
 
-        {/* STEP 1: Full Name & Mobile Number ONLY */}
+        {/* STEP 1: Full Name & Mobile Number Form */}
         {step === 1 && (
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
             <div className="mb-6 text-center">
@@ -180,7 +136,7 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
               </p>
             </div>
 
-            <form onSubmit={handleRequestOtp} className="space-y-4">
+            <form onSubmit={handleSubmitRegistration} className="space-y-4">
               
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -241,76 +197,14 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2563EB] text-white font-bold text-sm rounded-xl hover:bg-blue-700 shadow-md transition-all active:scale-95 disabled:opacity-50 mt-4"
               >
-                {loading ? 'Sending SMS OTP...' : 'Send Verification OTP'}
+                {loading ? 'Submitting Registration...' : 'Submit Registration Pass'}
                 <ArrowRight className="w-5 h-5" />
               </button>
             </form>
           </div>
         )}
 
-        {/* STEP 2: Real OTP SMS Verification */}
-        {step === 2 && (
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <div className="mb-6 text-center">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center mx-auto mb-3 font-bold">
-                <KeyRound className="w-6 h-6" />
-              </div>
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Verify Mobile Number</h2>
-              <p className="text-xs text-slate-500 mt-1 font-medium">
-                Enter the 4-digit code sent to <span className="font-mono font-bold text-slate-900">+91 {mobile}</span>
-              </p>
 
-              {sentOtpDemo && (
-                <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-700 font-bold flex flex-col items-center">
-                  <span>Demo SMS Gateway Code:</span>
-                  <span className="text-xl text-slate-900 mt-1 bg-white px-3 py-1 rounded-lg border border-slate-300 shadow-sm">{sentOtpDemo}</span>
-                </div>
-              )}
-            </div>
-
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div>
-                <label className="block text-center text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Enter 4-Digit OTP
-                </label>
-                <input
-                  type="text"
-                  maxLength={4}
-                  placeholder="• • • •"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  className="w-full text-center text-3xl font-mono tracking-[0.5em] py-3 border-2 border-slate-300 rounded-2xl focus:border-blue-500 focus:outline-none font-bold"
-                  autoFocus
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-[#2563EB] text-white font-bold text-sm rounded-xl hover:bg-blue-700 shadow-md transition-all active:scale-95 disabled:opacity-50"
-              >
-                {loading ? 'Verifying...' : 'Verify & Submit Registration'}
-              </button>
-            </form>
-
-            <div className="mt-6 flex items-center justify-between text-xs border-t border-slate-100 pt-4">
-              <button
-                onClick={() => setStep(1)}
-                className="text-slate-500 hover:text-slate-900 font-bold"
-              >
-                ← Edit Phone Number
-              </button>
-              
-              <button
-                onClick={handleResendOtp}
-                className="text-blue-600 hover:underline font-bold flex items-center gap-1"
-              >
-                <RefreshCw className="w-3.5 h-3.5" /> Resend OTP
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* STEP 3: Clear Registration Success Screen */}
         {step === 3 && (

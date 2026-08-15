@@ -27,27 +27,22 @@ export const PaymentsLedger: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
-      if (gym) {
-        setLoading(true);
-        try {
-          const [fetchedPayments, fetchedMembers, fetchedPlans] = await Promise.all([
-            api.getPayments(gym.id),
-            api.getMembers(gym.id),
-            api.getGymPlans(gym.id)
-          ]);
-          if (isMounted) {
-            setPayments(fetchedPayments || []);
-            setMembers(fetchedMembers || []);
-            setPlans(fetchedPlans || []);
-          }
-        } catch (err) {
-          console.error('Error fetching payments ledger data:', err);
-        } finally {
-          if (isMounted) {
-            setLoading(false);
-          }
+      if (!gym) return;
+      setLoading(true);
+      try {
+        const [fetchedPayments, fetchedMembers, fetchedPlans] = await Promise.all([
+          api.getPayments(gym.id),
+          api.getMembers(gym.id),
+          api.getGymPlans(gym.id)
+        ]);
+        if (isMounted) {
+          setPayments(fetchedPayments || []);
+          setMembers(fetchedMembers || []);
+          setPlans(fetchedPlans || []);
         }
-      } else {
+      } catch (err) {
+        console.error('Error fetching payments ledger data:', err);
+      } finally {
         if (isMounted) {
           setLoading(false);
         }
@@ -59,15 +54,13 @@ export const PaymentsLedger: React.FC = () => {
     };
   }, [gym]);
 
-  if (loading) {
+  if (loading || !gym) {
     return (
-      <div className="flex items-center justify-center p-12">
+      <div className="flex items-center justify-center p-12 min-h-[50vh]">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
-
-  if (!gym) return null;
 
   // Filter payments
   const filteredPayments = (payments || []).filter((pay) => {

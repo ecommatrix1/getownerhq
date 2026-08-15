@@ -9,6 +9,7 @@ import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { RefundPage } from './pages/RefundPage';
 import { AboutPage } from './pages/AboutPage';
+import { ComparisonPage } from './pages/ComparisonPage';
 import { DashboardLayout } from './components/DashboardLayout';
 import { DashboardProvider } from './components/DashboardContext';
 import { ThemeProvider } from './components/ThemeContext';
@@ -147,6 +148,11 @@ export function App() {
   }
   if (currentPath === '/refund') {
     return <RefundPage onNavigate={navigate} />;
+  }
+
+  // SEO & GEO Comparison Routes (/compare/*)
+  if (currentPath.startsWith('/compare')) {
+    return <ComparisonPage slug={currentPath} onNavigate={navigate} />;
   }
 
   // Route 6: Authenticated Owner Dashboard Pages

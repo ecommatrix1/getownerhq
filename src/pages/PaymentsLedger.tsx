@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Download, Calendar, Search, Receipt, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CreditCard, Download, Calendar, Search, Receipt, Loader2, ChevronLeft, ChevronRight, Smartphone, Banknote, Building2 } from 'lucide-react';
 import { api } from '../lib/api';
 import { Payment, Member, GymPlan } from '../types';
 import { useDashboard } from '../components/DashboardContext';
@@ -15,6 +15,7 @@ export const PaymentsLedger: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [selectedMode, setSelectedMode] = useState<string>('all');
 
   // Pagination state (must be at top level before conditional returns)
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +28,7 @@ export const PaymentsLedger: React.FC = () => {
   // Reset pagination to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, startDate, endDate]);
+  }, [searchQuery, startDate, endDate, selectedMode]);
 
   useEffect(() => {
     let isMounted = true;
@@ -89,8 +90,9 @@ export const PaymentsLedger: React.FC = () => {
     }
     const matchesStart = !startDate || payDate >= startDate;
     const matchesEnd = !endDate || payDate <= endDate;
+    const matchesMode = selectedMode === 'all' || pay.payment_mode === selectedMode;
 
-    return matchesSearch && matchesStart && matchesEnd;
+    return matchesSearch && matchesStart && matchesEnd && matchesMode;
   });
 
   const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
@@ -176,8 +178,21 @@ export const PaymentsLedger: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto text-sm font-mono text-slate-600">
-            <Calendar className="w-4 h-4 text-slate-400" />
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto text-sm font-mono text-slate-600">
+            {/* Mode Filter Selector */}
+            <select
+              value={selectedMode}
+              onChange={(e) => setSelectedMode(e.target.value)}
+              className="p-2 border border-slate-200 rounded-xl font-bold text-xs bg-slate-50 text-slate-700 focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer"
+            >
+              <option value="all">All Payment Modes</option>
+              <option value="UPI">UPI (GPay / PhonePe / Paytm)</option>
+              <option value="Card">Debit / Credit Card</option>
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer (NEFT/IMPS)</option>
+            </select>
+
+            <Calendar className="w-4 h-4 text-slate-400 ml-1" />
             <input
               type="date"
               value={startDate}
@@ -237,9 +252,23 @@ export const PaymentsLedger: React.FC = () => {
                         ₹{p.amount}
                       </td>
                       <td className="p-4">
-                        <span className="px-2 py-1 rounded-md bg-slate-100 font-bold text-[10px] text-slate-600 uppercase tracking-wider">
-                          {p.payment_mode}
-                        </span>
+                        {p.payment_mode === 'UPI' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200/80 font-bold text-xs">
+                            <Smartphone className="w-3.5 h-3.5 text-purple-600" /> UPI
+                          </span>
+                        ) : p.payment_mode === 'Card' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 font-bold text-xs">
+                            <CreditCard className="w-3.5 h-3.5 text-blue-600" /> Card
+                          </span>
+                        ) : p.payment_mode === 'Bank Transfer' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 font-bold text-xs">
+                            <Building2 className="w-3.5 h-3.5 text-amber-600" /> Bank Transfer
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold text-xs">
+                            <Banknote className="w-3.5 h-3.5 text-emerald-600" /> Cash
+                          </span>
+                        )}
                       </td>
                       <td className="p-4 text-slate-500">
                         {p.paid_at && !isNaN(new Date(p.paid_at).getTime())

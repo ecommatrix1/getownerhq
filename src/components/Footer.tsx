@@ -38,7 +38,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <h4 className="text-xs font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4">Legal</h4>
             <ul className="space-y-3 text-sm">
               <li><button onClick={() => onNavigate('/privacy')} className="hover:text-[#5B6CFF] transition-colors">Privacy Policy</button></li>
-              <li><button onClick={() => onNavigate('/terms')} className="hover:text-[#5B6CFF] transition-colors">Terms & Conditions</button></li>
+              <li><button onClick={() => onNavigate('/terms')} className="hover:text-[#5B6CFF] transition-colors">Terms of Service</button></li>
               <li><button onClick={() => onNavigate('/refund')} className="hover:text-[#5B6CFF] transition-colors">Refund Policy</button></li>
             </ul>
           </div>

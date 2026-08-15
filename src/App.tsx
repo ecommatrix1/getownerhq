@@ -54,11 +54,16 @@ const PageLoader = () => (
 
 export function App() {
   const resolveCurrentRoute = () => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash) return hash;
-    const pathname = window.location.pathname;
-    if (pathname && pathname !== '/') return pathname;
-    return '/';
+    let raw = '';
+    const hash = window.location.hash;
+    if (hash) {
+      raw = hash.replace(/^#+/, '');
+    } else {
+      raw = window.location.pathname;
+    }
+    if (!raw || raw === '/') return '/';
+    const clean = '/' + raw.replace(/^\/+/, '').replace(/\/+$/, '');
+    return clean;
   };
 
   const [currentPath, setCurrentPath] = useState<string>(resolveCurrentRoute);
@@ -154,7 +159,9 @@ export function App() {
     cleanPath === '/payment' ||
     cleanPath === '/pmnt' ||
     cleanPath === '/dashboard/pmnt' ||
-    cleanPath === '/dashboard/payment'
+    cleanPath === '/dashboard/payment' ||
+    cleanPath.includes('payment') ||
+    cleanPath.includes('pmnt')
   ) {
     dashboardContent = <PaymentsLedger />;
   } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {

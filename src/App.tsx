@@ -40,7 +40,7 @@ function lazyWithRetry<P = {}>(
 }
 
 // Lazy load authenticated dashboard components with retry logic
-const DashboardOverview = lazyWithRetry<{ onNavigate: (path: string) => void }>(() => import('./pages/DashboardOverview'), 'DashboardOverview');
+const DashboardOverview = lazyWithRetry<{ onNavigate: (path: string) => void; currentPath?: string }>(() => import('./pages/DashboardOverview'), 'DashboardOverview');
 const PaymentsLedger = lazyWithRetry(() => import('./pages/PaymentsLedger'), 'PaymentsLedger');
 const WhatsAppTemplatesPage = lazyWithRetry(() => import('./pages/WhatsAppTemplates'), 'WhatsAppTemplatesPage');
 const SettingsPage = lazyWithRetry<{ onOpenStandee: () => void }>(() => import('./pages/SettingsPage'), 'SettingsPage');
@@ -157,7 +157,7 @@ export function App() {
 
   // Route 6: Authenticated Owner Dashboard Pages
   const cleanPath = currentPath.toLowerCase();
-  let dashboardContent = <DashboardOverview onNavigate={navigate} />;
+  let dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
 
   if (
     cleanPath === '/dashboard/payments' ||

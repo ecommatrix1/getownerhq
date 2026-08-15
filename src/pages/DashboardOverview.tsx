@@ -15,9 +15,10 @@ import { getEffectiveStatus, parseDateOnly, getDaysUntilExpiry } from '../utils/
 
 interface DashboardOverviewProps {
   onNavigate: (route: string) => void;
+  currentPath?: string;
 }
 
-export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate }) => {
+export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate, currentPath }) => {
   const { isReadOnly, gym } = useDashboard();
   const [members, setMembers] = useState<Member[]>([]);
   const [plans, setPlans] = useState<GymPlan[]>([]);
@@ -198,23 +199,30 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Dashboard</h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-            Home &gt; Overview
-          </p>
-        </div>
-        {!isReadOnly && (
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center justify-center gap-2 bg-[#2563EB] text-white font-bold text-sm px-5 py-3 sm:py-2 rounded-xl hover:bg-blue-700 shadow-md transition-all active:scale-95 w-full sm:w-auto"
-          >
-            <UserPlus className="w-5 h-5 sm:w-4 sm:h-4" />
-            Add Member
-          </button>
-        )}
-      </div>
+      {(() => {
+        const isMembersRoute = currentPath?.toLowerCase().includes('member');
+        return (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                {isMembersRoute ? 'Members Directory' : 'Dashboard'}
+              </h1>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                {isMembersRoute ? 'Home > Members Directory & Management' : 'Home > Overview'}
+              </p>
+            </div>
+            {!isReadOnly && (
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center justify-center gap-2 bg-[#2563EB] text-white font-bold text-sm px-5 py-3 sm:py-2 rounded-xl hover:bg-blue-700 shadow-md transition-all active:scale-95 w-full sm:w-auto"
+              >
+                <UserPlus className="w-5 h-5 sm:w-4 sm:h-4" />
+                Add Member
+              </button>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-7 gap-4">

@@ -94,7 +94,7 @@ export function App() {
       document.head.appendChild(canonicalLink);
     }
     const cleanPath = currentPath === '/' ? '' : currentPath;
-    const fullCanonicalUrl = `https://getownerhq.in${cleanPath}`;
+    const fullCanonicalUrl = `https://www.getownerhq.in${cleanPath}`;
     canonicalLink.href = fullCanonicalUrl;
 
     const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');

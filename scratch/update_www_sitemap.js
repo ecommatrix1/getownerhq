@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+import fs from 'fs';
+const path = 'c:/Users/ASUS/Downloads/antigravity/public/sitemap.xml';
+
+const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.getownerhq.in/</loc>
@@ -66,4 +69,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-</urlset>
+</urlset>`;
+
+fs.writeFileSync(path, sitemapContent, 'utf8');
+console.log('Successfully updated sitemap.xml to www.getownerhq.in canonical URLs!');

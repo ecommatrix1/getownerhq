@@ -8,6 +8,10 @@
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; frame-src 'self' https://sdk.cashfree.com https://payments.cashfree.com https://sandbox.cashfree.com https://*.cashfree.com https:;"
         },
         {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=0, must-revalidate"
+        },
+        {
           "key": "X-Frame-Options",
           "value": "SAMEORIGIN"
         },

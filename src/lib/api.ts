@@ -26,19 +26,47 @@ export const api = {
   // --- AUTH & GYM PROFILE ---
   async getCurrentGym(): Promise<Gym | null> {
     const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) return null;
+    if (!sessionData?.session) return null;
+
+    const userId = sessionData.session.user.id;
+    const userEmail = sessionData.session.user.email || 'owner@gym.com';
 
     const { data, error } = await supabase
       .from("gyms")
       .select("*")
-      .eq("owner_user_id", sessionData.session.user.id)
+      .eq("owner_user_id", userId)
       .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching current gym:", error);
-      return null;
+    if (!error && data) {
+      return data as Gym;
     }
-    return data as Gym;
+
+    // Auto-Recovery: If authenticated user has an auth account but missing gym profile row
+    console.warn("[getCurrentGym] Authenticated user missing gym profile row. Creating auto-recovery profile...");
+    const gymName = userEmail.split('@')[0].toUpperCase() + " GYM";
+    const baseSlug = gymName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const slug = `${baseSlug || 'my-gym'}-${Date.now().toString().slice(-4)}`;
+
+    const { data: newGym, error: insertError } = await supabase
+      .from("gyms")
+      .insert({
+        owner_user_id: userId,
+        name: gymName,
+        slug: slug,
+        city: 'Main Branch',
+        owner_name: 'Gym Owner',
+        owner_mobile: '9999999999',
+        subscription_status: 'trial',
+        subscription_plan: 'Starter'
+      })
+      .select()
+      .single();
+
+    if (!insertError && newGym) {
+      return newGym as Gym;
+    }
+
+    return null;
   },
 
   async getGymBySlug(slug: string): Promise<Gym | null> {
@@ -246,58 +274,38 @@ export const api = {
     joinDate?: string,
   ) {
     const cleanMobile = mobile.replace(/\D/g, "");
-    try {
-      const { data, error } = await supabase
-        .from("members")
-        .insert({
-          gym_id: gymId,
-          full_name: fullName.trim(),
-          mobile: cleanMobile,
-          status: "pending",
-          start_date: joinDate || null,
-        })
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from("members")
+      .insert({
+        gym_id: gymId,
+        full_name: fullName.trim(),
+        mobile: cleanMobile,
+        status: "pending",
+        start_date: joinDate || null,
+      })
+      .select()
+      .single();
 
-      if (error) {
-        if (error.code === "23505") {
-          return {
-            success: false,
-            message:
-              "This mobile number is already registered at this gym. Please speak to reception to activate your pass.",
-          };
-        }
-        console.warn("[Public Registration] Supabase insert note:", error.message);
+    if (error) {
+      if (error.code === "23505") {
+        return {
+          success: false,
+          message:
+            "This mobile number is already registered at this gym. Please speak to reception to activate your pass.",
+        };
       }
-
+      console.error("[Public Registration] Insert failed:", error.message);
       return {
-        success: true,
-        message: "Registration successful!",
-        member: (data as Member) || ({
-          id: `mem-${Date.now()}`,
-          gym_id: gymId,
-          full_name: fullName.trim(),
-          mobile: cleanMobile,
-          status: "pending",
-          registered_at: new Date().toISOString(),
-          created_at: new Date().toISOString()
-        } as unknown as Member),
-      };
-    } catch (e: any) {
-      return {
-        success: true,
-        message: "Registration successful!",
-        member: {
-          id: `mem-${Date.now()}`,
-          gym_id: gymId,
-          full_name: fullName.trim(),
-          mobile: cleanMobile,
-          status: "pending",
-          registered_at: new Date().toISOString(),
-          created_at: new Date().toISOString()
-        } as unknown as Member
+        success: false,
+        message: "Registration could not be saved. Please try again or ask reception to add you manually.",
       };
     }
+
+    return {
+      success: true,
+      message: "Registration successful!",
+      member: data as Member,
+    };
   },
 
   async addMemberManual(gymId: string, fullName: string, mobile: string) {

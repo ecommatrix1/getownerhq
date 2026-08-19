@@ -4,6 +4,7 @@ import {
   UserPlus, MoreVertical, Copy, Trash2, ChevronLeft, ChevronRight, MessageSquare, CreditCard, CheckCircle2
 } from 'lucide-react';
 import { api } from '../lib/api';
+import { supabase } from '../lib/supabase';
 import { Member, GymPlan, Payment } from '../types';
 import { ActivateRenewDrawer } from '../components/ActivateRenewDrawer';
 import { PartialPaymentDrawer } from '../components/PartialPaymentDrawer';
@@ -65,7 +66,33 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+
+    // 1. Listen for window focus to refetch stale state
+    const handleFocus = () => loadData();
+    window.addEventListener('focus', handleFocus);
+
+    // 2. Realtime listener for members table changes
+    let channel: any = null;
+    if (gym?.id) {
+      channel = supabase
+        .channel(`realtime:members:${gym.id}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'members', filter: `gym_id=eq.${gym.id}` },
+          () => {
+            loadData();
+          }
+        )
+        .subscribe();
+    }
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [loadData, gym?.id]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as any;

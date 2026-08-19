@@ -10,7 +10,7 @@
 ## 2. Tech Stack & Standards
 - **Frontend**: React 18 + Vite + TypeScript + Tailwind CSS.
 - **Backend / Database / Auth**: Supabase (PostgreSQL with Row Level Security, Supabase Auth).
-- **Payment Integration**: Cashfree Payments (Cashfree JS SDK v3 with `_modal` checkout flow).
+- **Payment Integration**: Cashfree Payments (Server-side Session Creation + Server-side Verification + Webhooks + Cashfree JS SDK v3 `_modal` checkout flow).
 - **Icons & Typography**: `lucide-react`, Google Fonts (*Barlow Condensed*, *IBM Plex Mono*, *Inter*).
 - **Hosting & Edge Delivery**: Vercel (Edge CDN).
 
@@ -24,7 +24,15 @@
 
 ---
 
-## 4. Investigation & Diagnosis Log
+## 4. Cashfree Subscription Architecture
+1. **Server-Side Session Creation**: `POST /api/create-cashfree-session` calls Cashfree Orders/Subscriptions API using `CASHFREE_CLIENT_ID` and `CASHFREE_CLIENT_SECRET`. Credentials never leak to frontend.
+2. **Mandate Authorization Overlay**: `cashfree.checkout({ paymentSessionId, redirectTarget: '_modal' })` presents the official Cashfree checkout modal to the user.
+3. **Server-Side Verification**: `POST /api/verify-cashfree-session` queries Cashfree API (`/pg/orders/{order_id}`). Supabase plan (`Growth`/`Starter`, `active`) is updated **ONLY** when `order_status === 'PAID'`.
+4. **Webhooks**: `POST /api/cashfree-webhook` handles async recurring payment events.
+
+---
+
+## 5. Investigation & Diagnosis Log
 
 ### Issue: `/dashboard/billing` Content Blocked in Production
 - **User Symptom**: Chrome displays `"This content is blocked. Contact the site owner to fix the issue."` with a sad document icon on `https://www.getownerhq.in/#/dashboard/billing`.
@@ -50,11 +58,19 @@ content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline' '
 
 ---
 
-## 5. Resolution Plan & Execution Log
-- [x] **Step 1: Add CDN Cache Control Header in `vercel.json`**:
+## 6. Resolution Plan & Execution Log
+- [x] **Step 1: Backend Endpoints (`/api/*`)**:
+  - Implemented [`api/create-cashfree-session.ts`](file:///c:/Users/ASUS/Downloads/omni%20P/antigravity/api/create-cashfree-session.ts), [`api/verify-cashfree-session.ts`](file:///c:/Users/ASUS/Downloads/omni%20P/antigravity/api/verify-cashfree-session.ts), and [`api/cashfree-webhook.ts`](file:///c:/Users/ASUS/Downloads/omni%20P/antigravity/api/cashfree-webhook.ts).
+- [x] **Step 2: Vercel API Routing**:
+  - Updated [`vercel.json`](file:///c:/Users/ASUS/Downloads/omni%20P/antigravity/vercel.json#L38-L43) rewrites to route `/api/*` to serverless functions.
+- [x] **Step 3: Frontend Modal Wiring**:
+  - Updated [`BillingPage.tsx`](file:///c:/Users/ASUS/Downloads/omni%20P/antigravity/src/pages/BillingPage.tsx#L50-L115) to require server-verified `PAID` status before activating plans.
+- [x] **Step 4: Add CDN Cache Control Header in `vercel.json`**:
   - Added `"Cache-Control": "public, max-age=0, s-maxage=0, must-revalidate"` to [`vercel.json`](file:///c:/Users/ASUS/Downloads/omni%20P/antigravity/vercel.json#L10-L13).
-  - Forces Vercel Edge CDN nodes to bypass stale cached HTTP security headers and serve updated `X-Frame-Options: SAMEORIGIN` and CSP with `frame-src`.
-- [ ] **Step 2: Push to Git / Deploy to Vercel**:
-  - Push commit to GitHub (`git add . && git commit -m "..." && git push origin main`).
-- [ ] **Step 3: Verify Live Edge CDN Headers**:
-  - Re-run HTTP live header test script to verify `X-Frame-Options: SAMEORIGIN` and `frame-src` are returned by live CDN.
+  - Forces Vercel Edge CDN nodes to bypass stale cached HTTP security headers.
+- [x] **Step 5: Production Vercel Deployment & Live Verification**:
+  - Configured `tsconfig.json` to include `"types": ["vite/client", "node"]` and `"include": ["src", "api"]`.
+  - Deployed directly to Vercel production (`npx vercel --prod --yes`).
+  - Aliased to `https://www.getownerhq.in` at 14:51:15 GMT.
+  - Live Edge Response verified: `Status: 200`, `x-vercel-cache: MISS`, `age: 0`, `X-Frame-Options: SAMEORIGIN`.
+  - Automatic Plan Creation Fallback active for `Plan does not exist` on Cashfree Production.

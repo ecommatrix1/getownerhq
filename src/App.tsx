@@ -112,7 +112,8 @@ export function App() {
 
   // Route 1: QR Member Self Registration (/r/[slug])
   if (currentPath.startsWith('/r/')) {
-    const slug = currentPath.replace('/r/', '') || 'powerhouse-gym';
+    const rawSlug = currentPath.replace(/^\/r\//i, '');
+    const slug = decodeURIComponent(rawSlug || '').trim().replace(/\/+$/, '') || 'powerhouse-gym';
     return <PublicRegistrationPage slug={slug} onNavigate={navigate} />;
   }
 

@@ -52,50 +52,77 @@ export const BillingPage: React.FC = () => {
     setCheckoutLoading(true);
     
     try {
-      // 1. Ensure Cashfree SDK is loaded
+      // 1. Ensure Cashfree SDK script is loaded
       const loaded = await loadCashfreeScript();
       if (!loaded || !(window as any).Cashfree) {
-        alert('Cashfree SDK failed to load. Are you online?');
+        alert('Cashfree JS SDK failed to load. Please check your internet connection.');
         setCheckoutLoading(false);
         return;
       }
 
-      const isProd = import.meta.env.PROD || (import.meta.env as any).VITE_CASHFREE_MODE === 'production';
-      const mode = (import.meta.env as any).VITE_CASHFREE_MODE || (isProd ? 'production' : 'sandbox');
+      // 2. Call backend server to create Cashfree Subscription Session securely
+      const createRes = await fetch('/api/create-cashfree-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gym_id: gym.id,
+          plan_name: planName,
+          amount,
+          owner_name: gym.owner_name,
+          owner_email: `${gym.slug}@getownerhq.in`,
+          owner_mobile: gym.owner_mobile
+        })
+      });
 
-      // 2. Initialize Cashfree SDK
-      const cashfree = (window as any).Cashfree({ mode });
+      const createData = await createRes.json();
 
-      // 3. Obtain session ID if available, or trigger official Cashfree JS SDK checkout modal
-      let subscriptionSessionId = (import.meta.env as any).VITE_CASHFREE_SUBSCRIPTION_SESSION_ID || '';
+      if (!createRes.ok || !createData.success || !createData.subscription_session_id) {
+        console.error('Cashfree subscription creation failed:', createData);
+        alert(`Cashfree Subscription Initialization Failed: ${createData.message || 'Server credentials or network error'}`);
+        setCheckoutLoading(false);
+        return;
+      }
 
-      if (subscriptionSessionId) {
-        const checkoutOptions = {
-          paymentSessionId: subscriptionSessionId,
-          redirectTarget: '_modal', // Opens in official Cashfree popup modal, NOT embedding iframe dashboard
-        };
+      // 3. Initialize Cashfree JS SDK with mode returned by server ('production' or 'sandbox')
+      const cashfree = (window as any).Cashfree({ mode: createData.mode || 'production' });
 
-        const result = await cashfree.checkout(checkoutOptions);
-        if (result?.error) {
-          console.error('Cashfree checkout modal error:', result.error);
-        } else {
-          await api.updateGymProfile(gym.id, { subscription_status: 'active', subscription_plan: planName as any });
-          setCurrentStatus('active');
-          setCurrentPlan(planName);
-          setToastMessage(`Success! Payment received. ${planName} Plan is now Active.`);
-          setTimeout(() => setToastMessage(null), 5000);
-        }
-      } else {
-        // Fallback/Simulated flow when session ID is created dynamically: update status cleanly & show success toast
-        await api.updateGymProfile(gym.id, { subscription_status: 'active', subscription_plan: planName as any });
+      // 4. Open Cashfree Subscription Checkout Modal using subscription_session_id
+      const checkoutOptions = {
+        subscriptionSessionId: createData.subscription_session_id,
+        redirectTarget: '_modal',
+      };
+
+      const result = await cashfree.checkout(checkoutOptions);
+      if (result?.error) {
+        console.warn('Cashfree subscription checkout modal closed or error:', result.error);
+      }
+
+      // 5. Server-side fetch subscription authorization status using subscription_id
+      const verifyRes = await fetch('/api/verify-cashfree-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscription_id: createData.subscription_id,
+          gym_id: gym.id,
+          plan_name: planName
+        })
+      });
+
+      const verifyData = await verifyRes.json();
+
+      // 6. Update local UI state ONLY if server verification confirms subscription_status === ACTIVE
+      if (verifyRes.ok && verifyData.success && verifyData.subscription_status === 'ACTIVE') {
         setCurrentStatus('active');
         setCurrentPlan(planName);
-        setToastMessage(`Success! ${planName} Plan activated via Cashfree Subscriptions (${mode.toUpperCase()} Mode).`);
+        setToastMessage(`Success! Subscription mandate authorized. ${planName} Plan is now Active.`);
         setTimeout(() => setToastMessage(null), 5000);
+      } else {
+        setToastMessage(`Subscription authorization incomplete (Status: ${verifyData.subscription_status || 'CANCELLED'}). Plan was not updated.`);
+        setTimeout(() => setToastMessage(null), 6000);
       }
     } catch (err: any) {
       console.error('Cashfree subscription checkout error:', err);
-      alert('Subscription payment failed to initiate. Please try again.');
+      alert('Subscription payment flow encountered an error. Please try again.');
     } finally {
       setCheckoutLoading(false);
     }

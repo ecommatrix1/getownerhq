@@ -336,7 +336,7 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                       value={amountPaid}
                       onChange={(e) => setAmountPaid(Number(e.target.value))}
                       disabled={loading}
-                      className="w-full pl-8 pr-3 py-2 text-base font-mono font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100"
+                      className="w-full pl-8 pr-3 py-2 text-base font-mono font-bold border border-slate-300 bg-white text-slate-900 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100"
                       required
                     />
                   </div>
@@ -376,7 +376,7 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                     onChange={(e) => setTxnRef(e.target.value)}
                     placeholder={paymentMode === 'UPI' ? 'e.g. UTR 42398129031' : paymentMode === 'Card' ? 'e.g. Card Last 4 (4821)' : 'Reference / Txn ID'}
                     disabled={loading}
-                    className="w-full text-xs font-mono p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    className="w-full text-xs font-mono p-2.5 border border-slate-200 bg-slate-50 text-slate-900 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               </div>

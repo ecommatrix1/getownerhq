@@ -254,6 +254,24 @@ export const api = {
     return data as Member[];
   },
 
+  async updateMemberDetails(
+    memberId: string,
+    updates: { full_name?: string; mobile?: string; start_date?: string }
+  ) {
+    const { data, error } = await supabase
+      .from("members")
+      .update(updates)
+      .eq("id", memberId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating member details:", error);
+      return { success: false, message: error.message };
+    }
+    return { success: true, member: data as Member };
+  },
+
   async deleteMember(memberId: string) {
     const { error } = await supabase
       .from("members")
@@ -391,13 +409,64 @@ export const api = {
 
   // --- PLANS ---
   async getGymPlans(gymId: string): Promise<GymPlan[]> {
-    const { data, error } = await supabase
-      .from("gym_plans")
-      .select("*")
-      .eq("gym_id", gymId)
-      .order("price", { ascending: true });
-    if (error) return [];
-    return data as GymPlan[];
+    const defaultPlans: GymPlan[] = [
+      {
+        id: `plan-m-${gymId}`,
+        gym_id: gymId,
+        name: "Monthly Membership",
+        duration_months: 1,
+        price: 1200,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: `plan-q-${gymId}`,
+        gym_id: gymId,
+        name: "Quarterly Saver",
+        duration_months: 3,
+        price: 3200,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: `plan-a-${gymId}`,
+        gym_id: gymId,
+        name: "Annual Gold Pass",
+        duration_months: 12,
+        price: 10000,
+        created_at: new Date().toISOString(),
+      },
+    ];
+
+    try {
+      const { data, error } = await supabase
+        .from("gym_plans")
+        .select("*")
+        .eq("gym_id", gymId)
+        .order("price", { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        return data as GymPlan[];
+      }
+
+      // Auto-seed default plans if empty
+      const payload = [
+        { gym_id: gymId, name: "Monthly Membership", duration_months: 1, price: 1200 },
+        { gym_id: gymId, name: "Quarterly Saver", duration_months: 3, price: 3200 },
+        { gym_id: gymId, name: "Annual Gold Pass", duration_months: 12, price: 10000 },
+      ];
+
+      const { data: inserted, error: seedError } = await supabase
+        .from("gym_plans")
+        .insert(payload)
+        .select();
+
+      if (!seedError && inserted && inserted.length > 0) {
+        return inserted as GymPlan[];
+      }
+    } catch (e) {
+      console.warn("[getGymPlans] Fallback to default plans engaged:", e);
+    }
+
+    return defaultPlans;
   },
 
   async addPlan(
@@ -424,14 +493,29 @@ export const api = {
 
   // --- PAYMENTS ---
   async getPayments(gymId: string): Promise<Payment[]> {
-    const { data, error } = await supabase
-      .from("payments")
-      .select("*")
-      .eq("gym_id", gymId)
-      .order("paid_at", { ascending: false })
-      .limit(3000);
-    if (error) return [];
-    return data as Payment[];
+    try {
+      const { data, error } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("gym_id", gymId)
+        .limit(3000);
+
+      if (error || !data) return [];
+
+      // Map payment_date / created_at / paid_at to paid_at & created_at for frontend
+      const mapped = data.map((p: any) => ({
+        ...p,
+        paid_at: p.paid_at || p.payment_date || p.created_at || new Date().toISOString(),
+        created_at: p.created_at || p.payment_date || p.paid_at || new Date().toISOString(),
+      }));
+
+      // Sort descending by date
+      mapped.sort((a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime());
+      return mapped as Payment[];
+    } catch (e) {
+      console.warn("[getPayments] Error fetching payments:", e);
+      return [];
+    }
   },
 
   // --- SETTINGS ---

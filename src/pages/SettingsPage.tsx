@@ -287,7 +287,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
                     placeholder="Plan Name"
                     value={newPlanName}
                     onChange={(e) => setNewPlanName(e.target.value)}
-                    className="w-full text-sm p-2 border border-blue-200 rounded-lg focus:outline-none focus:border-blue-400"
+                    className="w-full text-sm p-2 border border-blue-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:border-blue-400"
                     required
                   />
                 </div>
@@ -297,7 +297,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
                     placeholder="Duration (Months)"
                     value={newPlanDuration}
                     onChange={(e) => setNewPlanDuration(Number(e.target.value))}
-                    className="w-full text-sm font-mono p-2 border border-blue-200 rounded-lg focus:outline-none focus:border-blue-400"
+                    className="w-full text-sm font-mono p-2 border border-blue-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:border-blue-400"
                     required
                   />
                 </div>
@@ -307,7 +307,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
                     placeholder="Price (₹)"
                     value={newPlanPrice}
                     onChange={(e) => setNewPlanPrice(Number(e.target.value))}
-                    className="w-full text-sm font-mono p-2 border border-blue-200 rounded-lg focus:outline-none focus:border-blue-400"
+                    className="w-full text-sm font-mono p-2 border border-blue-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:border-blue-400"
                     required
                   />
                 </div>

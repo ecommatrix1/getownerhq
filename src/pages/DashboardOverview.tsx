@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Users, Search, Filter, Phone, Activity, Zap, Watch, ShieldAlert,
-  UserPlus, MoreVertical, Copy, Trash2, ChevronLeft, ChevronRight, MessageSquare, CreditCard, CheckCircle2
+  UserPlus, MoreVertical, Copy, Trash2, ChevronLeft, ChevronRight, MessageSquare, CreditCard, CheckCircle2, Edit
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { supabase } from '../lib/supabase';
@@ -10,6 +10,7 @@ import { ActivateRenewDrawer } from '../components/ActivateRenewDrawer';
 import { PartialPaymentDrawer } from '../components/PartialPaymentDrawer';
 import { AddDueModal } from '../components/AddDueModal';
 import { AddMemberModal } from '../components/AddMemberModal';
+import { EditMemberModal } from '../components/EditMemberModal';
 import { useDashboard } from '../components/DashboardContext';
 import { RevenueAnalyticsChart } from '../components/RevenueAnalyticsChart';
 import { getEffectiveStatus, parseDateOnly, getDaysUntilExpiry } from '../utils/status';
@@ -46,6 +47,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
   const [isPartialDrawerOpen, setIsPartialDrawerOpen] = useState(false);
   const [selectedMemberForAddDue, setSelectedMemberForAddDue] = useState<Member | null>(null);
   const [isAddDueModalOpen, setIsAddDueModalOpen] = useState(false);
+  const [selectedMemberForEdit, setSelectedMemberForEdit] = useState<Member | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -439,6 +442,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
                         setSelectedMemberForAddDue(member);
                         setIsAddDueModalOpen(true);
                       }}
+                      onEdit={() => {
+                        setSelectedMemberForEdit(member);
+                        setIsEditModalOpen(true);
+                      }}
                       onDelete={() => handleDeleteMember(member.id)}
                       totalRows={filteredAndSortedMembers.length}
                     />
@@ -562,6 +569,21 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           setTimeout(() => setToastMessage(null), 5000);
         }}
       />
+
+      {isEditModalOpen && selectedMemberForEdit && (
+        <EditMemberModal
+          member={selectedMemberForEdit}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedMemberForEdit(null);
+          }}
+          onSuccess={() => {
+            setToastMessage('Member details updated successfully!');
+            loadData();
+            setTimeout(() => setToastMessage(null), 5000);
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -736,7 +758,7 @@ const MemberMobileCard = React.memo(({ index, member, plan, effStatus, daysLeftT
   );
 });
 
-const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftText, isReadOnly, waLink, onRenew, onPartialPayment, onAddDue, onDelete, totalRows }: any) => {
+const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftText, isReadOnly, waLink, onRenew, onPartialPayment, onAddDue, onEdit, onDelete, totalRows }: any) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -764,7 +786,7 @@ const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftTex
             effStatus === 'active' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' :
             effStatus === 'expiring' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800' :
             effStatus === 'expired' ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
-            'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
+            'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
           }`}>
             {effStatus}
           </span>
@@ -776,7 +798,7 @@ const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftTex
         </div>
       </td>
       <td className="px-6 py-4">
-        <div className="text-sm font-medium text-slate-900 dark:text-slate-200">
+        <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
           {member.expiry_date ? parseDateOnly(member.expiry_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
         </div>
         <div className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold">{daysLeftText}</div>
@@ -847,6 +869,15 @@ const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftTex
                 </button>
                 {!isReadOnly && (
                   <>
+                    <button 
+                      onClick={() => {
+                        onEdit();
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg"
+                    >
+                      <Edit className="w-4 h-4 text-slate-500" /> Edit Details
+                    </button>
                     <button 
                       onClick={() => {
                         onAddDue();

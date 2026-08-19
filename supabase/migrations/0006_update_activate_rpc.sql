@@ -1,4 +1,12 @@
--- Update activate_member_plan to accept p_new_dues and set it correctly
+-- 1. Ensure created_at, payment_date, member_name, and plan_name columns exist and are not blocking nulls
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS payment_date TIMESTAMPTZ DEFAULT now();
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS member_name TEXT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS plan_name TEXT;
+ALTER TABLE public.payments ALTER COLUMN member_name DROP NOT NULL;
+ALTER TABLE public.payments ALTER COLUMN plan_name DROP NOT NULL;
+
+-- 2. Update activate_member_plan RPC to accept p_new_dues and set it correctly
 DROP FUNCTION IF EXISTS public.activate_member_plan(UUID, UUID, DATE, DATE, NUMERIC, TEXT);
 
 CREATE OR REPLACE FUNCTION public.activate_member_plan(
@@ -14,6 +22,7 @@ RETURNS JSON AS $$
 DECLARE
     v_gym_id UUID;
     v_member_gym_id UUID;
+    v_member_name TEXT;
     v_plan_gym_id UUID;
     v_plan_name TEXT;
     v_receipt_number TEXT;
@@ -28,8 +37,8 @@ BEGIN
         RETURN json_build_object('success', false, 'message', 'Gym not found or unauthorized.');
     END IF;
 
-    -- 2. Verify member belongs to this gym
-    SELECT gym_id INTO v_member_gym_id
+    -- 2. Verify member belongs to this gym & get member_name
+    SELECT gym_id, full_name INTO v_member_gym_id, v_member_name
     FROM public.members
     WHERE id = p_member_id;
 
@@ -37,7 +46,7 @@ BEGIN
         RETURN json_build_object('success', false, 'message', 'Member not found or unauthorized.');
     END IF;
 
-    -- 3. Verify plan belongs to this gym
+    -- 3. Verify plan belongs to this gym & get plan_name
     SELECT gym_id, name INTO v_plan_gym_id, v_plan_name
     FROM public.gym_plans
     WHERE id = p_plan_id;
@@ -67,17 +76,23 @@ BEGIN
             gym_id,
             member_id,
             plan_id,
+            member_name,
+            plan_name,
             amount,
             payment_mode,
             receipt_number,
-            payment_date
+            payment_date,
+            created_at
         ) VALUES (
             v_gym_id,
             p_member_id,
             p_plan_id,
+            v_member_name,
+            v_plan_name,
             p_amount_paid,
             p_payment_mode,
             v_receipt_number,
+            now(),
             now()
         );
     END IF;
@@ -91,3 +106,6 @@ EXCEPTION WHEN OTHERS THEN
     RETURN json_build_object('success', false, 'message', SQLERRM);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 3. Reload Schema Cache
+NOTIFY pgrst, 'reload schema';

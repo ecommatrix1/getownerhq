@@ -37,7 +37,10 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
     if (isOpen && member && gym) {
       setSuccessData(null);
 
-      // Determine initial start date: if member has future expiry_date, use that; else today.
+      // Determine initial start date:
+      // 1. If member has future expiry_date, use that (for active renewals).
+      // 2. Else if member has registered start_date (e.g. from QR signup), use that.
+      // 3. Otherwise default to today.
       const todayStr = new Date().toISOString().split("T")[0];
       let initialStartStr = todayStr;
       if (member.expiry_date) {
@@ -47,6 +50,8 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
         if (memberExpiry.getTime() > todayMidnight.getTime()) {
           initialStartStr = member.expiry_date;
         }
+      } else if (member.start_date) {
+        initialStartStr = member.start_date;
       }
       setStartDate(initialStartStr);
 

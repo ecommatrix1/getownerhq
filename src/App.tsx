@@ -111,78 +111,79 @@ export function App() {
   };
 
   // Route 1: QR Member Self Registration (/r/[slug])
-  if (currentPath.startsWith('/r/')) {
-    const rawSlug = currentPath.replace(/^\/r\//i, '');
-    const slug = decodeURIComponent(rawSlug || '').trim().replace(/\/+$/, '') || 'powerhouse-gym';
-    return <PublicRegistrationPage slug={slug} onNavigate={navigate} />;
-  }
+  const renderRoute = () => {
+    // Route 1: QR Member Self Registration (/r/[slug])
+    if (currentPath.startsWith('/r/')) {
+      const rawSlug = currentPath.replace(/^\/r\//i, '');
+      const slug = decodeURIComponent(rawSlug || '').trim().replace(/\/+$/, '') || 'powerhouse-gym';
+      return <PublicRegistrationPage slug={slug} onNavigate={navigate} />;
+    }
 
-  // Route 2: Public Marketing Homepage
-  if (currentPath === '/') {
-    return <MarketingPage onNavigate={navigate} />;
-  }
+    // Route 2: Public Marketing Homepage
+    if (currentPath === '/' || currentPath === '') {
+      return <MarketingPage onNavigate={navigate} />;
+    }
 
-  // Route 3: Owner Sign Up
-  if (currentPath === '/signup') {
-    return <SignUpPage onNavigate={navigate} />;
-  }
+    // Route 3: Owner Sign Up
+    if (currentPath === '/signup') {
+      return <SignUpPage onNavigate={navigate} />;
+    }
 
-  // Route 4: Owner Login
-  if (currentPath === '/login') {
-    return <LoginPage onNavigate={navigate} />;
-  }
+    // Route 4: Owner Login
+    if (currentPath === '/login') {
+      return <LoginPage onNavigate={navigate} />;
+    }
 
-  // Route 5: Reset Password Flow
-  if (currentPath === '/reset-password' || currentPath.includes('type=recovery')) {
-    return <ResetPasswordPage onNavigate={navigate} />;
-  }
+    // Route 5: Reset Password Flow
+    if (currentPath === '/reset-password' || currentPath.includes('type=recovery')) {
+      return <ResetPasswordPage onNavigate={navigate} />;
+    }
 
-  // Legal & Policy Routes
-  if (currentPath === '/about') {
-    return <AboutPage onNavigate={navigate} />;
-  }
-  if (currentPath === '/terms') {
-    return <TermsPage onNavigate={navigate} />;
-  }
-  if (currentPath === '/privacy') {
-    return <PrivacyPage onNavigate={navigate} />;
-  }
-  if (currentPath === '/refund') {
-    return <RefundPage onNavigate={navigate} />;
-  }
+    // Legal & Policy Routes
+    if (currentPath === '/about') {
+      return <AboutPage onNavigate={navigate} />;
+    }
+    if (currentPath === '/terms') {
+      return <TermsPage onNavigate={navigate} />;
+    }
+    if (currentPath === '/privacy') {
+      return <PrivacyPage onNavigate={navigate} />;
+    }
+    if (currentPath === '/refund') {
+      return <RefundPage onNavigate={navigate} />;
+    }
 
-  // SEO & GEO Comparison Routes (/compare/*)
-  if (currentPath.startsWith('/compare')) {
-    return <ComparisonPage slug={currentPath} onNavigate={navigate} />;
-  }
+    // SEO & GEO Comparison Routes (/compare/*)
+    if (currentPath.startsWith('/compare')) {
+      return <ComparisonPage slug={currentPath} onNavigate={navigate} />;
+    }
 
-  // Route 6: Authenticated Owner Dashboard Pages
-  const cleanPath = currentPath.toLowerCase();
-  let dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
+    // Route 6: Authenticated Owner Dashboard Pages
+    const cleanPath = currentPath.toLowerCase();
+    let dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
 
-  if (
-    cleanPath === '/dashboard/payments' ||
-    cleanPath === '/payments' ||
-    cleanPath === '/payment' ||
-    cleanPath === '/pmnt' ||
-    cleanPath === '/dashboard/pmnt' ||
-    cleanPath === '/dashboard/payment' ||
-    (cleanPath.includes('payment') && !cleanPath.includes('plan')) ||
-    cleanPath.includes('pmnt')
-  ) {
-    dashboardContent = <PaymentsLedger />;
-  } else if (cleanPath === '/dashboard/plans' || cleanPath === '/plans') {
-    dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
-  } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {
-    dashboardContent = <WhatsAppTemplatesPage />;
-  } else if (cleanPath === '/dashboard/settings' || cleanPath === '/settings') {
-    dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
-  } else if (cleanPath === '/dashboard/billing' || cleanPath === '/billing') {
-    dashboardContent = <BillingPage />;
-  }
+    if (
+      cleanPath === '/dashboard/payments' ||
+      cleanPath === '/payments' ||
+      cleanPath === '/payment' ||
+      cleanPath === '/pmnt' ||
+      cleanPath === '/dashboard/pmnt' ||
+      cleanPath === '/dashboard/payment' ||
+      (cleanPath.includes('payment') && !cleanPath.includes('plan')) ||
+      cleanPath.includes('pmnt')
+    ) {
+      dashboardContent = <PaymentsLedger />;
+    } else if (cleanPath === '/dashboard/plans' || cleanPath === '/plans') {
+      dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
+    } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {
+      dashboardContent = <WhatsAppTemplatesPage />;
+    } else if (cleanPath === '/dashboard/settings' || cleanPath === '/settings') {
+      dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
+    } else if (cleanPath === '/dashboard/billing' || cleanPath === '/billing') {
+      dashboardContent = <BillingPage />;
+    }
 
-  return (
-    <ThemeProvider>
+    return (
       <DashboardProvider>
         <DashboardLayout
           currentPath={currentPath}
@@ -196,6 +197,12 @@ export function App() {
           </ErrorBoundary>
         </DashboardLayout>
       </DashboardProvider>
+    );
+  };
+
+  return (
+    <ThemeProvider>
+      {renderRoute()}
 
       {/* Printable A5 Standee Modal */}
       <PrintableStandeeModal

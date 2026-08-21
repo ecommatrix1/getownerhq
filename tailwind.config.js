@@ -49,8 +49,8 @@ export default {
         },
         // light & pitch black surface definitions
         surface: {
-          DEFAULT: '#FFFFFF',  // pure crisp light bg
-          section: '#FAFAF8',  // section bg light
+          DEFAULT: '#E2E8F0',  // deeper neutral muted gray (0 glare, comfortable)
+          section: '#E2E8F0',  // section bg light
           card:    '#FFFFFF',  // card bg light
           dark:    '#0A0A0C',  // pitch obsidian canvas
           'section-dark': '#0F0F12',

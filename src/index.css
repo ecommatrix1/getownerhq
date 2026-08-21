@@ -24,7 +24,7 @@
   }
 
   body {
-    @apply bg-white text-slate-900 font-sans antialiased
+    @apply bg-[#E2E8F0] text-slate-900 font-sans antialiased
            dark:bg-[#0A0A0C] dark:text-white
            transition-colors duration-300;
     font-feature-settings: "cv11", "ss01", "ss03";
@@ -171,6 +171,36 @@
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
+
+  /* Warm Meridian Ambient Spotlight & Backlight Halo */
+  .ambient-hero-light {
+    position: relative;
+  }
+  .ambient-hero-light::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 320px;
+    background: radial-gradient(ellipse at bottom, rgba(255, 85, 0, 0.22) 0%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .dark .ambient-card-glow {
+    position: relative;
+  }
+  .dark .ambient-card-glow::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: radial-gradient(circle, rgba(255, 85, 0, 0.28) 0%, transparent 70%);
+    filter: blur(16px);
+    z-index: -1;
+    border-radius: 1.25rem;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────

@@ -44,6 +44,7 @@ const DashboardOverview = lazyWithRetry<{ onNavigate: (path: string) => void; cu
 const PaymentsLedger = lazyWithRetry(() => import('./pages/PaymentsLedger'), 'PaymentsLedger');
 const WhatsAppTemplatesPage = lazyWithRetry(() => import('./pages/WhatsAppTemplates'), 'WhatsAppTemplatesPage');
 const SettingsPage = lazyWithRetry<{ onOpenStandee: () => void }>(() => import('./pages/SettingsPage'), 'SettingsPage');
+const PlansPage = lazyWithRetry(() => import('./pages/PlansPage'), 'PlansPage');
 const BillingPage = lazyWithRetry(() => import('./pages/BillingPage'), 'BillingPage');
 
 // Fallback loader
@@ -174,7 +175,7 @@ export function App() {
     ) {
       dashboardContent = <PaymentsLedger />;
     } else if (cleanPath === '/dashboard/plans' || cleanPath === '/plans') {
-      dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
+      dashboardContent = <PlansPage />;
     } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {
       dashboardContent = <WhatsAppTemplatesPage />;
     } else if (cleanPath === '/dashboard/settings' || cleanPath === '/settings') {

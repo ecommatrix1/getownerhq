@@ -314,9 +314,9 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* HOW IT WORKS — 5 steps, semantic color emphasis */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-navy-600 mt-10">
-        <div className="text-center mb-16">
+      {/* HOW IT WORKS — 5 steps, Meridian warm spotlight & ambient card glow */}
+      <section id="how-it-works" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-navy-600 mt-10 ambient-hero-light">
+        <div className="text-center mb-16 relative z-10">
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             How It Works
           </h2>
@@ -325,10 +325,10 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative z-10">
 
           {/* Step 1 */}
-          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300 ambient-card-glow">
             <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
               1
             </div>
@@ -337,7 +337,7 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Step 2 */}
-          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300 ambient-card-glow">
             <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
               2
             </div>
@@ -346,7 +346,7 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Step 3 */}
-          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300 ambient-card-glow">
             <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
               3
             </div>
@@ -355,7 +355,7 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Step 4 */}
-          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300 ambient-card-glow">
             <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
               4
             </div>
@@ -364,7 +364,7 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Step 5 */}
-          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300 ambient-card-glow">
             <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
               5
             </div>

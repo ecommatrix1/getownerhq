@@ -1,7 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Check, AlertCircle, CreditCard, ExternalLink, Zap, Loader2, Download, Building2, History, Banknote } from 'lucide-react';
-import { api } from '../lib/api';
-import { Gym } from '../types';
+import React, { useState, useEffect } from "react";
+import {
+  ShieldCheck,
+  Check,
+  AlertCircle,
+  CreditCard,
+  ExternalLink,
+  Zap,
+  Loader2,
+  Download,
+  Building2,
+  History,
+  Banknote,
+} from "lucide-react";
+import { api } from "../lib/api";
+import { Gym } from "../types";
 
 // Load Cashfree JS SDK v3
 const loadCashfreeScript = (): Promise<boolean> => {
@@ -10,8 +22,8 @@ const loadCashfreeScript = (): Promise<boolean> => {
       resolve(true);
       return;
     }
-    const script = document.createElement('script');
-    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+    const script = document.createElement("script");
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -20,8 +32,8 @@ const loadCashfreeScript = (): Promise<boolean> => {
 
 export const BillingPage: React.FC = () => {
   const [gym, setGym] = useState<Gym | null>(null);
-  const [currentStatus, setCurrentStatus] = useState('');
-  const [currentPlan, setCurrentPlan] = useState('');
+  const [currentStatus, setCurrentStatus] = useState("");
+  const [currentPlan, setCurrentPlan] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -31,8 +43,8 @@ export const BillingPage: React.FC = () => {
       const currentGym = await api.getCurrentGym();
       if (currentGym) {
         setGym(currentGym);
-        setCurrentStatus(currentGym.subscription_status || 'trial');
-        setCurrentPlan(currentGym.subscription_plan || 'Starter');
+        setCurrentStatus(currentGym.subscription_status || "trial");
+        setCurrentPlan(currentGym.subscription_plan || "Starter");
       }
       setLoading(false);
     };
@@ -40,7 +52,7 @@ export const BillingPage: React.FC = () => {
   }, []);
 
   const daysRemainingInTrial = () => {
-    if (!gym || currentStatus !== 'trial') return 0;
+    if (!gym || currentStatus !== "trial") return 0;
     const ends = new Date(gym.trial_ends_at).getTime();
     const now = new Date().getTime();
     const diff = Math.ceil((ends - now) / (1000 * 60 * 60 * 24));
@@ -50,79 +62,117 @@ export const BillingPage: React.FC = () => {
   const handleTriggerCashfree = async (planName: string, amount: number) => {
     if (!gym || checkoutLoading) return;
     setCheckoutLoading(true);
-    
+
     try {
       // 1. Ensure Cashfree SDK script is loaded
       const loaded = await loadCashfreeScript();
       if (!loaded || !(window as any).Cashfree) {
-        alert('Cashfree JS SDK failed to load. Please check your internet connection.');
+        alert(
+          "Cashfree JS SDK failed to load. Please check your internet connection.",
+        );
         setCheckoutLoading(false);
         return;
       }
 
       // 2. Call backend server to create Cashfree Subscription Session securely
-      const createRes = await fetch('/api/create-cashfree-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const createRes = await fetch("/api/create-cashfree-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           gym_id: gym.id,
           plan_name: planName,
           amount,
           owner_name: gym.owner_name,
           owner_email: `${gym.slug}@getownerhq.in`,
-          owner_mobile: gym.owner_mobile
-        })
+          owner_mobile: gym.owner_mobile,
+        }),
       });
 
       const createData = await createRes.json();
 
-      if (!createRes.ok || !createData.success || !createData.subscription_session_id) {
-        console.error('Cashfree subscription creation failed:', createData);
-        alert(`Cashfree Subscription Initialization Failed: ${createData.message || 'Server credentials or network error'}`);
+      if (
+        !createRes.ok ||
+        !createData.success ||
+        !createData.subscription_session_id
+      ) {
+        console.error("Cashfree subscription creation failed:", createData);
+        alert(
+          `Cashfree Subscription Initialization Failed: ${createData.message || "Server credentials or network error"}`,
+        );
         setCheckoutLoading(false);
         return;
       }
 
       // 3. Initialize Cashfree JS SDK with mode returned by server ('production' or 'sandbox')
-      const cashfree = (window as any).Cashfree({ mode: createData.mode || 'production' });
+      const cashfree = (window as any).Cashfree({
+        mode: createData.mode || "production",
+      });
 
       // 4. Open Cashfree Subscription Checkout Modal using subscription_session_id
       const checkoutOptions = {
         subscriptionSessionId: createData.subscription_session_id,
-        redirectTarget: '_modal',
+        redirectTarget: "_self",
       };
+      console.log("Cashfree checkout starting:", {
+        mode: createData.mode,
+        subscription_id: createData.subscription_id,
+        subscription_session_id: createData.subscription_session_id,
+        checkoutOptions,
+      });
 
       const result = await cashfree.checkout(checkoutOptions);
+
+      console.log("CASHFREE CHECKOUT RESULT:", result);
+
       if (result?.error) {
-        console.warn('Cashfree subscription checkout modal closed or error:', result.error);
+        console.error("Cashfree checkout error:", result.error);
+
+        alert(
+          `Cashfree Checkout Error: ${
+            result.error.message || "Checkout could not be opened."
+          }`,
+        );
+
+        setCheckoutLoading(false);
+        return;
       }
 
       // 5. Server-side fetch subscription authorization status using subscription_id
-      const verifyRes = await fetch('/api/verify-cashfree-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const verifyRes = await fetch("/api/verify-cashfree-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subscription_id: createData.subscription_id,
           gym_id: gym.id,
-          plan_name: planName
-        })
+          plan_name: planName,
+        }),
       });
 
       const verifyData = await verifyRes.json();
 
       // 6. Update local UI state ONLY if server verification confirms subscription_status === ACTIVE
-      if (verifyRes.ok && verifyData.success && verifyData.subscription_status === 'ACTIVE') {
-        setCurrentStatus('active');
+      if (
+        verifyRes.ok &&
+        verifyData.success &&
+        verifyData.subscription_status === "ACTIVE"
+      ) {
+        setCurrentStatus("active");
         setCurrentPlan(planName);
-        setToastMessage(`Success! Subscription mandate authorized. ${planName} Plan is now Active.`);
+        setToastMessage(
+          `Success! Subscription mandate authorized. ${planName} Plan is now Active.`,
+        );
         setTimeout(() => setToastMessage(null), 5000);
       } else {
-        setToastMessage(`Subscription authorization incomplete (Status: ${verifyData.subscription_status || 'CANCELLED'}). Plan was not updated.`);
+        setToastMessage(
+          `Subscription authorization incomplete (Status: ${verifyData.subscription_status || "CANCELLED"}). Plan was not updated.`,
+        );
         setTimeout(() => setToastMessage(null), 6000);
       }
     } catch (err: any) {
-      console.error('Cashfree subscription checkout error:', err);
-      alert('Subscription payment flow encountered an error. Please try again.');
+      console.error("Cashfree subscription checkout error:", err);
+      alert(
+        "Subscription payment flow encountered an error. Please try again.",
+      );
     } finally {
       setCheckoutLoading(false);
     }
@@ -130,10 +180,14 @@ export const BillingPage: React.FC = () => {
 
   const handleCancelSubscription = async () => {
     if (!gym) return;
-    if (confirm('Are you sure you want to cancel your gym subscription? Your members will remain saved, but the dashboard will become read-only at the end of your billing cycle.')) {
-      await api.updateGymProfile(gym.id, { subscription_status: 'cancelled' });
-      setCurrentStatus('cancelled');
-      setToastMessage('Subscription cancelled. You can reactivate anytime.');
+    if (
+      confirm(
+        "Are you sure you want to cancel your gym subscription? Your members will remain saved, but the dashboard will become read-only at the end of your billing cycle.",
+      )
+    ) {
+      await api.updateGymProfile(gym.id, { subscription_status: "cancelled" });
+      setCurrentStatus("cancelled");
+      setToastMessage("Subscription cancelled. You can reactivate anytime.");
       setTimeout(() => setToastMessage(null), 5000);
     }
   };
@@ -150,10 +204,11 @@ export const BillingPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
-
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Billing & Subscription</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Billing & Subscription
+        </h1>
         <p className="text-sm font-medium text-slate-500">
           Manage your plan, payment methods, and invoices.
         </p>
@@ -162,15 +217,17 @@ export const BillingPage: React.FC = () => {
       {toastMessage && (
         <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-sm rounded-xl flex items-center justify-between shadow-sm">
           <span>{toastMessage}</span>
-          <button onClick={() => setToastMessage(null)} className="text-emerald-800 hover:text-emerald-900">✕</button>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="text-emerald-800 hover:text-emerald-900">
+            ✕
+          </button>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
         {/* Left Column: Current Plan & Tiers */}
         <div className="lg:col-span-2 space-y-6">
-
           {/* Current Subscription Card — dark navy per spec */}
           <div className="bg-navy-975 text-white rounded-2xl p-6 shadow-soft-dark border border-navy-600 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
@@ -178,28 +235,30 @@ export const BillingPage: React.FC = () => {
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2.5 py-1 rounded-full">
                   Plan: {currentPlan}
                 </span>
-                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${currentStatus === 'active' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : currentStatus === 'trial' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
+                <span
+                  className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${currentStatus === "active" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : currentStatus === "trial" ? "bg-amber-500/20 text-amber-300 border-amber-500/30" : "bg-red-500/20 text-red-300 border-red-500/30"}`}>
                   Status: {currentStatus}
                 </span>
               </div>
 
               <h2 className="text-xl font-extrabold tracking-tight mb-1">
-                {currentStatus === 'trial'
+                {currentStatus === "trial"
                   ? `Free Trial Ends in ${daysRemainingInTrial()} Days`
-                  : currentStatus === 'active'
-                  ? 'Active Monthly Subscription'
-                  : 'Subscription Expired (Read-Only)'}
+                  : currentStatus === "active"
+                    ? "Active Monthly Subscription"
+                    : "Subscription Expired (Read-Only)"}
               </h2>
               <p className="text-sm text-slate-400 font-medium">
-                {currentStatus === 'trial' ? 'Upgrade now to prevent losing write access to your dashboard.' : 'Your next billing cycle triggers automatically via Cashfree AutoPay.'}
+                {currentStatus === "trial"
+                  ? "Upgrade now to prevent losing write access to your dashboard."
+                  : "Your next billing cycle triggers automatically via Cashfree AutoPay."}
               </p>
             </div>
 
-            {currentStatus === 'active' && (
+            {currentStatus === "active" && (
               <button
                 onClick={handleCancelSubscription}
-                className="text-xs font-bold text-red-300 hover:text-red-200 border border-red-900/50 px-4 py-2 rounded-xl bg-red-950/30 transition-colors whitespace-nowrap"
-              >
+                className="text-xs font-bold text-red-300 hover:text-red-200 border border-red-900/50 px-4 py-2 rounded-xl bg-red-950/30 transition-colors whitespace-nowrap">
                 Cancel Plan
               </button>
             )}
@@ -207,91 +266,143 @@ export const BillingPage: React.FC = () => {
 
           {/* Pricing Tiers Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
             {/* Starter Plan */}
-            <div className={`bg-white p-6 rounded-2xl border ${currentPlan === 'Starter' && currentStatus === 'active' ? 'border-2 border-brand-500 shadow-md ring-2 ring-brand-500/20' : 'border-slate-200'} flex flex-col justify-between`}>
+            <div
+              className={`bg-white p-6 rounded-2xl border ${currentPlan === "Starter" && currentStatus === "active" ? "border-2 border-brand-500 shadow-md ring-2 ring-brand-500/20" : "border-slate-200"} flex flex-col justify-between`}>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Starter</div>
-                <h4 className="text-xl font-extrabold text-slate-900">Under 100 Members</h4>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                  Starter
+                </div>
+                <h4 className="text-xl font-extrabold text-slate-900">
+                  Under 100 Members
+                </h4>
                 <div className="flex items-baseline gap-1 my-3">
-                  <span className="text-3xl font-extrabold font-mono text-slate-900">₹499</span>
-                  <span className="text-xs font-medium text-slate-500">/ mo</span>
+                  <span className="text-3xl font-extrabold font-mono text-slate-900">
+                    ₹499
+                  </span>
+                  <span className="text-xs font-medium text-slate-500">
+                    / mo
+                  </span>
                 </div>
                 <ul className="space-y-2.5 text-xs font-medium text-slate-600 mb-6">
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Up to 100 members</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Unlimited QR registrations</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> WhatsApp manual reminders</li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-semantic-green" /> Up to 100
+                    members
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-semantic-green" /> Unlimited
+                    QR registrations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-semantic-green" /> WhatsApp
+                    manual reminders
+                  </li>
                 </ul>
               </div>
               <button
-                onClick={() => handleTriggerCashfree('Starter', 499)}
+                onClick={() => handleTriggerCashfree("Starter", 499)}
                 disabled={checkoutLoading}
-                className="w-full py-2.5 bg-slate-100 text-slate-800 font-bold text-sm rounded-xl hover:bg-slate-200 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : currentPlan === 'Starter' && currentStatus === 'active' ? 'Current Plan' : 'Select Starter'}
+                className="w-full py-2.5 bg-slate-100 text-slate-800 font-bold text-sm rounded-xl hover:bg-slate-200 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                {checkoutLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : currentPlan === "Starter" && currentStatus === "active" ? (
+                  "Current Plan"
+                ) : (
+                  "Select Starter"
+                )}
               </button>
             </div>
 
             {/* Growth Plan */}
-            <div className={`bg-white p-6 rounded-2xl border-2 border-brand-500 shadow-md flex flex-col justify-between relative`}>
+            <div
+              className={`bg-white p-6 rounded-2xl border-2 border-brand-500 shadow-md flex flex-col justify-between relative`}>
               <div className="absolute -top-3 left-6 bg-gradient-brand text-white font-extrabold text-[9px] uppercase px-3 py-1 rounded-full shadow-glow-brand tracking-wider">
                 Recommended
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 mb-1 mt-1">Growth</div>
-                <h4 className="text-xl font-extrabold text-slate-900">Unlimited</h4>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 mb-1 mt-1">
+                  Growth
+                </div>
+                <h4 className="text-xl font-extrabold text-slate-900">
+                  Unlimited
+                </h4>
                 <div className="flex items-baseline gap-1 my-3">
-                  <span className="text-3xl font-extrabold font-mono text-slate-900">₹999</span>
-                  <span className="text-xs font-medium text-slate-500">/ mo</span>
+                  <span className="text-3xl font-extrabold font-mono text-slate-900">
+                    ₹999
+                  </span>
+                  <span className="text-xs font-medium text-slate-500">
+                    / mo
+                  </span>
                 </div>
                 <ul className="space-y-2.5 text-xs font-medium text-slate-600 mb-6">
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Unlimited capacity</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Advanced analytics</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Priority Support</li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-semantic-green" /> Unlimited
+                    capacity
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-semantic-green" /> Advanced
+                    analytics
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-semantic-green" /> Priority
+                    Support
+                  </li>
                 </ul>
               </div>
               <button
-                onClick={() => handleTriggerCashfree('Growth', 999)}
+                onClick={() => handleTriggerCashfree("Growth", 999)}
                 disabled={checkoutLoading}
-                className="btn-brand w-full disabled:opacity-50"
-              >
-                {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : currentPlan === 'Growth' && currentStatus === 'active' ? 'Current Plan' : 'Upgrade to Growth'}
+                className="btn-brand w-full disabled:opacity-50">
+                {checkoutLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : currentPlan === "Growth" && currentStatus === "active" ? (
+                  "Current Plan"
+                ) : (
+                  "Upgrade to Growth"
+                )}
               </button>
             </div>
-
           </div>
         </div>
 
         {/* Right Column: Methods & History */}
         <div className="space-y-6">
-
           {/* Payment Method */}
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-slate-400" /> Payment Method
             </h3>
 
-            {currentStatus === 'active' ? (
+            {currentStatus === "active" ? (
               <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-6 bg-navy-800 rounded flex items-center justify-center">
-                    <span className="text-[8px] text-white font-bold tracking-wider">UPI / CC</span>
+                    <span className="text-[8px] text-white font-bold tracking-wider">
+                      UPI / CC
+                    </span>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-slate-900">Cashfree AutoPay</div>
-                    <div className="text-[10px] text-slate-500 font-mono">Linked to ID: {gym.id.slice(0,8)}...</div>
+                    <div className="text-xs font-bold text-slate-900">
+                      Cashfree AutoPay
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      Linked to ID: {gym.id.slice(0, 8)}...
+                    </div>
                   </div>
                 </div>
                 <div className="w-2 h-2 rounded-full bg-semantic-green"></div>
               </div>
             ) : (
               <div className="text-xs text-slate-500 font-medium p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
-                No active payment method linked. Select a plan to set up UPI AutoPay or Card billing via Cashfree.
+                No active payment method linked. Select a plan to set up UPI
+                AutoPay or Card billing via Cashfree.
               </div>
             )}
 
             <div className="mt-4 flex items-center justify-center gap-3 grayscale opacity-60">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Secured by Cashfree Payments</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Secured by Cashfree Payments
+              </span>
             </div>
           </div>
 
@@ -305,16 +416,21 @@ export const BillingPage: React.FC = () => {
               {/* Dummy row */}
               <div className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:border-slate-200 transition-colors group cursor-default">
                 <div>
-                  <div className="text-xs font-bold text-slate-900">{currentPlan} Plan</div>
-                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{new Date().toLocaleDateString()}</div>
+                  <div className="text-xs font-bold text-slate-900">
+                    {currentPlan} Plan
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                    {new Date().toLocaleDateString()}
+                  </div>
                 </div>
-                <button className="text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Download Invoice">
+                <button
+                  className="text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Download Invoice">
                   <Download className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

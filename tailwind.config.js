@@ -10,54 +10,52 @@ export default {
       // ─── BRAND: dark orange primary (#E87916) — 80/15/5 rule ───
       colors: {
         brand: {
-          50:  '#FFF5EC',  // soft tint, status pills bg
+          50:  '#FFF5EC',
           100: '#FFE7D2',
           200: '#FFD1A5',
           300: '#FFB473',
-          400: '#F29640',
-          500: '#E87916',  // primary
-          600: '#D0690F',  // hover/active fallback
-          700: '#C9600E',  // pressed
-          800: '#A14A0A',
-          900: '#7A3607',
-          950: '#4A1F03',
+          400: '#FF6B1A',
+          500: '#FF5500',  // Electric Brand Orange primary
+          600: '#E64D00',  // hover/active
+          700: '#CC4400',  // pressed
+          800: '#A13600',
+          900: '#7A2900',
+          950: '#4A1900',
         },
         accent: {
-          // orange-secondary tones — restrained, used only for accents/gradients
-          400: '#F29640',  // hover
-          500: '#E87916',  // primary mirror
-          600: '#D0690F',
+          400: '#FF6B1A',
+          500: '#FF5500',
+          600: '#E64D00',
         },
-        // navy/charcoal dark-mode hierarchy — from page bg to elevated surfaces
+        // neutral onyx/charcoal dark-mode hierarchy — 0 AI blue
         navy: {
-          50:  '#F4F6F8',
-          100: '#E6EAEE',
-          200: '#C9D2DC',
-          400: '#5A6A7A',
-          500: '#334455',  // strong border / text
-          600: '#263442',  // border
-          700: '#1C2936',  // hover
-          800: '#18232F',  // elevated
-          900: '#131D27',  // card
-          950: '#0F1720',  // section
-          975: '#0B1118',  // page
+          50:  '#F4F4F5',
+          100: '#E4E4E7',
+          200: '#D4D4D8',
+          400: '#71717A',
+          500: '#52525B',  // text muted
+          600: '#3F3F46',  // strong border
+          700: '#27272A',  // border
+          800: '#18181B',  // elevated
+          900: '#121215',  // card
+          950: '#0F0F12',  // section
+          975: '#0A0A0C',  // page canvas
         },
-        // amber kept as semantic warning/status — NOT primary
         amber: {
           50:  '#FFFBEB',
           400: '#FBBF24',
           500: '#F59E0B',
           600: '#D97706',
         },
-        // light-mode warm off-white surfaces
+        // light & pitch black surface definitions
         surface: {
-          DEFAULT: '#FAFAF8',  // page bg light
-          section: '#F4F5F3',  // section bg light
+          DEFAULT: '#FFFFFF',  // pure crisp light bg
+          section: '#FAFAF8',  // section bg light
           card:    '#FFFFFF',  // card bg light
-          dark:    '#0B1118',  // page bg dark
-          'section-dark': '#0F1720',
-          'card-dark':    '#131D27',
-          'elevated-dark':'#18232F',
+          dark:    '#0A0A0C',  // pitch obsidian canvas
+          'section-dark': '#0F0F12',
+          'card-dark':    '#121215',
+          'elevated-dark':'#18181B',
         },
         ink: {
           DEFAULT: '#1C1F26',  // primary text light

@@ -328,48 +328,48 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
 
           {/* Step 1 */}
-          <div className="bg-white dark:bg-navy-900/60 border border-slate-200 dark:border-navy-600 p-6 rounded-2xl hover:-translate-y-1 hover:shadow-soft-light dark:hover:bg-navy-800 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 flex items-center justify-center mb-5 border border-brand-200/60 dark:border-brand-500/30">
-              <span className="font-extrabold text-lg">1</span>
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
+              1
             </div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-base mb-2">Create Your Gym</h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Sign up, set your gym name, and configure your basic membership plans instantly.</p>
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Create Your Gym</h4>
+            <p className="text-sm text-slate-800 dark:text-slate-300 font-medium leading-relaxed">Sign up, set your gym name, and configure your basic membership plans instantly.</p>
           </div>
 
           {/* Step 2 */}
-          <div className="bg-white dark:bg-navy-900/60 border border-slate-200 dark:border-navy-600 p-6 rounded-2xl hover:-translate-y-1 hover:shadow-soft-light dark:hover:bg-navy-800 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 dark:bg-semantic-blue/15 dark:text-semantic-blue flex items-center justify-center mb-5 border border-blue-200/60 dark:border-semantic-blue/30">
-              <span className="font-extrabold text-lg">2</span>
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
+              2
             </div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-base mb-2">Print QR Code</h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Download and print your unique A5 standee. Place it directly at your front reception desk.</p>
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Print QR Code</h4>
+            <p className="text-sm text-slate-800 dark:text-slate-300 font-medium leading-relaxed">Download and print your unique A5 standee. Place it directly at your front reception desk.</p>
           </div>
 
           {/* Step 3 */}
-          <div className="bg-white dark:bg-navy-900/60 border border-slate-200 dark:border-navy-600 p-6 rounded-2xl hover:-translate-y-1 hover:shadow-soft-light dark:hover:bg-navy-800 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-semantic-green dark:bg-semantic-green/15 flex items-center justify-center mb-5 border border-emerald-200/60 dark:border-semantic-green/30">
-              <span className="font-extrabold text-lg">3</span>
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
+              3
             </div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-base mb-2">Members Join</h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Members scan the QR code to self-register in 10 seconds. No paperwork needed.</p>
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Members Join</h4>
+            <p className="text-sm text-slate-800 dark:text-slate-300 font-medium leading-relaxed">Members scan the QR code to self-register in 10 seconds. No paperwork needed.</p>
           </div>
 
           {/* Step 4 */}
-          <div className="bg-white dark:bg-navy-900/60 border border-slate-200 dark:border-navy-600 p-6 rounded-2xl hover:-translate-y-1 hover:shadow-soft-light dark:hover:bg-navy-800 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-semantic-purple dark:bg-semantic-purple/15 flex items-center justify-center mb-5 border border-purple-200/60 dark:border-semantic-purple/30">
-              <span className="font-extrabold text-lg">4</span>
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
+              4
             </div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-base mb-2">Manage & Collect</h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Track expiries, send 1-click WhatsApp reminders, and log your payments easily.</p>
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-lg mb-2 tracking-tight">Manage & Collect</h4>
+            <p className="text-sm text-slate-800 dark:text-slate-300 font-medium leading-relaxed">Track expiries, send 1-click WhatsApp reminders, and log your payments easily.</p>
           </div>
 
           {/* Step 5 */}
-          <div className="bg-white dark:bg-navy-900/60 border border-slate-200 dark:border-navy-600 p-6 rounded-2xl hover:-translate-y-1 hover:shadow-soft-light dark:hover:bg-navy-800 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-semantic-yellow dark:bg-semantic-yellow/15 flex items-center justify-center mb-5 border border-amber-200/60 dark:border-semantic-yellow/30">
-              <span className="font-extrabold text-lg">5</span>
+          <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 p-6 rounded-2xl shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-orange-500 text-white font-black text-base flex items-center justify-center mb-4 shadow-sm">
+              5
             </div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-base mb-2">AutoPay Plans</h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Continue growing your gym with our SaaS AutoPay after your 1-month free trial ends.</p>
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-lg mb-2 tracking-tight">AutoPay Plans</h4>
+            <p className="text-sm text-slate-800 dark:text-slate-300 font-medium leading-relaxed">Continue growing your gym with our SaaS AutoPay after your 1-month free trial ends.</p>
           </div>
 
         </div>

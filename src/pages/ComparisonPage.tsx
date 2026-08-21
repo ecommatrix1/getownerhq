@@ -230,13 +230,13 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
 
   if (isOverview) {
     return (
-      <div className="min-h-screen bg-[#1D283A] text-white font-sans selection:bg-[#4353FF] selection:text-white">
+      <div className="min-h-screen bg-surface-dark text-ink-inverse font-sans selection:bg-brand-500 selection:text-white">
         <Navbar onNavigate={onNavigate} currentRoute="/compare" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            <div className="inline-flex items-center gap-2 bg-brand-500/10 border border-brand-500/20 text-brand-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-brand-400" />
               <span>SaaS Comparison Hub</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
@@ -248,9 +248,9 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col justify-between hover:border-blue-500/50 transition-all">
+            <div className="bg-navy-900/60 border border-navy-600 rounded-2xl p-8 flex flex-col justify-between hover:border-brand-500/50 transition-all">
               <div>
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Alternative Guide</span>
+                <span className="text-xs font-bold text-brand-400 uppercase tracking-wider">Alternative Guide</span>
                 <h2 className="text-2xl font-bold text-white mt-2 mb-4">GymOwl Alternative</h2>
                 <p className="text-sm text-slate-300 leading-relaxed mb-6">
                   Discover why Indian gym owners choose getOwnerHQ over GymOwl for 1-tap WhatsApp renewal messaging and phone-first mobile cards.
@@ -258,16 +258,16 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
               </div>
               <button
                 onClick={() => onNavigate('/compare/gymowl-alternative')}
-                className="w-full py-3 bg-[#4353FF] hover:bg-[#3543E0] text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm"
+                className="btn-brand w-full"
               >
                 <span>Read Comparison</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col justify-between hover:border-blue-500/50 transition-all">
+            <div className="bg-navy-900/60 border border-navy-600 rounded-2xl p-8 flex flex-col justify-between hover:border-brand-500/50 transition-all">
               <div>
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Head-to-Head</span>
+                <span className="text-xs font-bold text-brand-400 uppercase tracking-wider">Head-to-Head</span>
                 <h2 className="text-2xl font-bold text-white mt-2 mb-4">getOwnerHQ vs GymMaster</h2>
                 <p className="text-sm text-slate-300 leading-relaxed mb-6">
                   Save up to 80% on monthly software costs. Compare flat INR pricing vs expensive USD global fees.
@@ -275,16 +275,16 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
               </div>
               <button
                 onClick={() => onNavigate('/compare/getownerhq-vs-gymmaster')}
-                className="w-full py-3 bg-[#4353FF] hover:bg-[#3543E0] text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm"
+                className="btn-brand w-full"
               >
                 <span>Read Comparison</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col justify-between hover:border-blue-500/50 transition-all">
+            <div className="bg-navy-900/60 border border-navy-600 rounded-2xl p-8 flex flex-col justify-between hover:border-brand-500/50 transition-all">
               <div>
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Head-to-Head</span>
+                <span className="text-xs font-bold text-brand-400 uppercase tracking-wider">Head-to-Head</span>
                 <h2 className="text-2xl font-bold text-white mt-2 mb-4">getOwnerHQ vs Wodify</h2>
                 <p className="text-sm text-slate-300 leading-relaxed mb-6">
                   Wodify costs $149+/mo for US CrossFit boxes. getOwnerHQ starts at ₹499/mo tailored for Indian fitness centers.
@@ -292,7 +292,7 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
               </div>
               <button
                 onClick={() => onNavigate('/compare/getownerhq-vs-wodify')}
-                className="w-full py-3 bg-[#4353FF] hover:bg-[#3543E0] text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm"
+                className="btn-brand w-full"
               >
                 <span>Read Comparison</span>
                 <ChevronRight className="w-4 h-4" />
@@ -307,17 +307,17 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
   }
 
   return (
-    <div className="min-h-screen bg-[#1D283A] text-white font-sans selection:bg-[#4353FF] selection:text-white">
+    <div className="min-h-screen bg-surface-dark text-ink-inverse font-sans selection:bg-brand-500 selection:text-white">
       <Navbar onNavigate={onNavigate} currentRoute={`/compare/${cleanSlug}`} />
 
       {/* HERO SECTION */}
       <section className="pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+        <div className="inline-flex items-center gap-2 bg-brand-500/10 border border-brand-500/20 text-brand-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+          <Sparkles className="w-3.5 h-3.5 text-brand-400" />
           <span>{data.heroBadge}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
+        <h1 className="text-3xl sm:text-hero-sm font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
           {data.h1}
         </h1>
 
@@ -328,14 +328,14 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <button
             onClick={() => onNavigate('/signup')}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#4353FF] hover:bg-[#3543E0] text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all"
+            className="btn-brand"
           >
             <span>Start 1-Month Free Trial</span>
             <ArrowRight className="w-4 h-4" />
           </button>
           <button
             onClick={() => onNavigate('/login')}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-sm px-8 py-4 rounded-xl transition-all"
+            className="btn-ghost"
           >
             <LogIn className="w-4 h-4" />
             <span>Owner Login</span>
@@ -345,8 +345,8 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
 
       {/* VERDICT SUMMARY BANNER */}
       <section className="py-8 px-4 max-w-4xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-900/40 via-slate-800/60 to-blue-900/40 border border-blue-500/30 rounded-3xl p-6 sm:p-8 text-center space-y-3 shadow-xl">
-          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">The Bottom Line Verdict</span>
+        <div className="bg-navy-900/60 border border-navy-600 rounded-2xl p-6 sm:p-8 text-center space-y-3 shadow-soft-dark">
+          <span className="text-xs font-bold text-brand-400 uppercase tracking-wider block">The Bottom Line Verdict</span>
           <p className="text-lg sm:text-xl text-white font-semibold leading-relaxed">
             "{data.keyVerdict}"
           </p>
@@ -360,26 +360,26 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
           <p className="text-sm text-slate-300 mt-2">Compare getOwnerHQ directly against {data.competitorName}.</p>
         </div>
 
-        <div className="overflow-x-auto bg-white/5 border border-white/10 rounded-3xl shadow-2xl">
+        <div className="overflow-x-auto bg-navy-900/60 border border-navy-600 rounded-2xl shadow-soft-dark">
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5 text-xs font-bold uppercase text-slate-300">
+              <tr className="border-b border-navy-600 bg-navy-800 text-xs font-bold uppercase text-slate-300">
                 <th className="py-4 px-6">Feature / Metric</th>
-                <th className="py-4 px-6 text-blue-400 bg-blue-500/10 border-x border-blue-500/20">getOwnerHQ</th>
+                <th className="py-4 px-6 text-brand-400 bg-brand-500/10 border-x border-brand-500/20">getOwnerHQ</th>
                 <th className="py-4 px-6 text-slate-400">{data.competitorName}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
+            <tbody className="divide-y divide-navy-700 text-sm">
               {data.features.map((feat, idx) => (
-                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                <tr key={idx} className="hover:bg-navy-800 transition-colors">
                   <td className="py-4 px-6">
                     <div className="font-semibold text-white">{feat.name}</div>
                     <div className="text-xs text-slate-400 mt-0.5">{feat.description}</div>
                   </td>
-                  <td className="py-4 px-6 bg-blue-500/10 border-x border-blue-500/20 font-bold text-blue-300">
+                  <td className="py-4 px-6 bg-brand-500/10 border-x border-brand-500/20 font-bold text-brand-300">
                     {typeof feat.getOwnerHQ === 'boolean' ? (
                       feat.getOwnerHQ ? (
-                        <div className="flex items-center gap-1.5 text-emerald-400">
+                        <div className="flex items-center gap-1.5 text-semantic-green">
                           <Check className="w-5 h-5" />
                           <span>Yes</span>
                         </div>
@@ -396,7 +396,7 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
                   <td className="py-4 px-6 text-slate-300">
                     {typeof feat.competitor === 'boolean' ? (
                       feat.competitor ? (
-                        <div className="flex items-center gap-1.5 text-emerald-400">
+                        <div className="flex items-center gap-1.5 text-semantic-green">
                           <Check className="w-5 h-5" />
                           <span>Yes</span>
                         </div>
@@ -420,17 +420,17 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
       {/* PROS & CONS */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          
+
           {/* Why Choose getOwnerHQ */}
-          <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-3xl p-8 space-y-4">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold text-lg">
+          <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-8 space-y-4">
+            <div className="flex items-center gap-2 text-semantic-green font-bold text-lg">
               <Check className="w-6 h-6" />
               <h3>Why Choose getOwnerHQ</h3>
             </div>
             <ul className="space-y-3 text-sm text-slate-200">
               {data.prosCons.getOwnerHQPros.map((pro, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 mt-1 flex-shrink-0" />
+                  <Check className="w-4 h-4 text-semantic-green mt-1 flex-shrink-0" />
                   <span>{pro}</span>
                 </li>
               ))}
@@ -438,7 +438,7 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
           </div>
 
           {/* Drawbacks of Competitor */}
-          <div className="bg-rose-950/20 border border-rose-500/20 rounded-3xl p-8 space-y-4">
+          <div className="bg-rose-950/20 border border-rose-500/20 rounded-2xl p-8 space-y-4">
             <div className="flex items-center gap-2 text-rose-400 font-bold text-lg">
               <X className="w-6 h-6" />
               <h3>Drawbacks of {data.competitorName}</h3>
@@ -464,9 +464,9 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
 
         <div className="space-y-4">
           {data.faqs.map((faq, idx) => (
-            <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-2">
+            <div key={idx} className="bg-navy-900/60 border border-navy-600 rounded-2xl p-6 space-y-2">
               <h3 className="font-bold text-white text-base flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                <HelpCircle className="w-4 h-4 text-brand-400 flex-shrink-0" />
                 <span>{faq.question}</span>
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pl-6">
@@ -477,23 +477,26 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* FINAL CTA — restrained dark strip, orange CTA */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
-        <div className="bg-gradient-to-br from-slate-800 to-[#121B2B] p-10 sm:p-14 rounded-3xl border border-white/10 shadow-2xl space-y-6">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-            Ready to experience the #1 gym software in India?
-          </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto">
-            Join gym owners who eliminated churn and automated WhatsApp billing renewals.
-          </p>
-          <div>
-            <button
-              onClick={() => onNavigate('/signup')}
-              className="inline-flex items-center gap-2 bg-[#4353FF] hover:bg-[#3543E0] text-white font-bold text-sm px-8 py-4 rounded-xl shadow-xl transition-all"
-            >
-              <span>Start Your 1-Month Free Trial</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+        <div className="relative bg-surface-elevated-dark p-10 sm:p-14 rounded-2xl border border-navy-600 shadow-soft-dark space-y-6 overflow-hidden">
+          <div className="absolute inset-0 bg-mesh-dark opacity-50 pointer-events-none" aria-hidden />
+          <div className="relative">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+              Ready to experience the #1 gym software in India?
+            </h2>
+            <p className="text-sm text-slate-300 max-w-xl mx-auto pt-2">
+              Join gym owners who eliminated churn and automated WhatsApp billing renewals.
+            </p>
+            <div className="pt-4">
+              <button
+                onClick={() => onNavigate('/signup')}
+                className="btn-brand group"
+              >
+                <span>Start Your 1-Month Free Trial</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-spring group-hover:translate-x-1" />
+              </button>
+            </div>
           </div>
         </div>
       </section>

@@ -2,24 +2,186 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────
+   Global base — premium typography, accessible defaults
+   Dark orange #E87916 · Navy/charcoal #0B1118 → #131D27 → #18232F
+   ───────────────────────────────────────────────────────────── */
 @layer base {
+  :root {
+    --gradient-brand: linear-gradient(135deg, #E87916 0%, #F29640 100%);
+    --gradient-brand-soft: linear-gradient(135deg, rgba(232,121,22,0.12) 0%, rgba(242,150,64,0.12) 100%);
+    /* Subtle orange glow (5% brand rule) */
+    --shadow-glow-brand: 0 8px 30px -8px rgba(232,121,22,0.18);
+    --shadow-glow-brand-lg: 0 16px 48px -12px rgba(232,121,22,0.28);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-[#FAFAF8] text-[#1C1F26] font-sans antialiased dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200;
+    @apply bg-surface text-ink font-sans antialiased
+           dark:bg-surface-dark dark:text-ink-inverse
+           transition-colors duration-300;
+    font-feature-settings: "cv11", "ss01", "ss03";
+  }
+
+  /* Tabular numbers for money, dates, IDs — matches IBM Plex Mono intent */
+  .num, .font-mono, [data-num] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Better focus ring across the app — accessible without being ugly */
+  :focus-visible {
+    outline: 2px solid #E87916;
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Selection feels premium, not default blue */
+  ::selection {
+    background: #E87916;
+    color: white;
+  }
+
+  /* Custom scrollbar — subtle, on-brand */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E87916;
+    background-clip: content-box;
+  }
+
+  /* Reduced motion respect */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-/* Custom Print Styles for A5 Standee Poster */
+/* ─────────────────────────────────────────────────────────────
+   Reusable component classes — orange + navy/charcoal
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  /* Premium gradient CTA — used by Navbar "Start Free Trial" */
+  .btn-brand {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3 min-h-[48px] min-w-[160px]
+           font-bold text-white text-base tracking-tight
+           rounded-xl
+           bg-gradient-brand
+           shadow-glow-brand
+           transition-all duration-200 ease-spring
+           hover:-translate-y-0.5 hover:shadow-glow-brand-lg
+           active:translate-y-0 active:scale-[0.98];
+  }
+
+  /* Ghost secondary — pairs with btn-brand */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3 min-h-[48px]
+           font-semibold text-ink dark:text-ink-inverse
+           rounded-xl border border-slate-200 dark:border-navy-600
+           bg-white/70 dark:bg-white/5 backdrop-blur
+           transition-all duration-200 ease-spring
+           hover:bg-white dark:hover:bg-navy-700
+           hover:border-brand-300 dark:hover:border-brand-500;
+  }
+
+  /* Premium card — navy/charcoal in dark mode, warm white in light */
+  .card-premium {
+    @apply bg-surface-card dark:bg-surface-card-dark
+           border border-slate-200/70 dark:border-navy-600
+           rounded-2xl shadow-soft-light dark:shadow-soft-dark
+           transition-all duration-300 ease-spring
+           hover:-translate-y-1 hover:shadow-card-hover hover:border-brand-300/60
+           dark:hover:border-navy-500;
+  }
+
+  /* Section container — consistent rhythm across pages */
+  .container-page {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Subtle dotted/dashed gradient underline for headings */
+  .heading-underline {
+    background-image: linear-gradient(90deg, #E87916, #F29640);
+    background-size: 100% 4px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    padding-bottom: 8px;
+  }
+
+  /* Glass surface — used by navbar / floating elements */
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+  }
+  .glass-dark {
+    background: rgba(11, 17, 24, 0.72);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+  }
+
+  /* Badge — semantic status chip */
+  .badge {
+    @apply inline-flex items-center gap-1.5
+           px-2.5 py-1 rounded-full
+           text-xs font-semibold
+           bg-brand-50 text-brand-700
+           dark:bg-brand-500/15 dark:text-brand-300;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Utilities
+   ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent bg-gradient-brand;
+  }
+
+  /* Warm orange mesh — 5–10% tint, never indigo */
+  .bg-mesh {
+    background-image:
+      radial-gradient(at 20% 20%, rgba(232,121,22,0.10) 0px, transparent 50%),
+      radial-gradient(at 80% 0%,  rgba(242,150,64,0.10) 0px, transparent 50%),
+      radial-gradient(at 0% 80%,  rgba(201,96,14,0.08)  0px, transparent 50%);
+  }
+  .bg-mesh-dark {
+    background-image:
+      radial-gradient(at 20% 20%, rgba(232,121,22,0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 0%,  rgba(242,150,64,0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 80%,  rgba(0,0,0,0.30)      0px, transparent 50%);
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Print styles — A5 standee (preserved from original)
+   ───────────────────────────────────────────────────────────── */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  #printable-standee, #printable-standee * {
-    visibility: visible;
-  }
+  body * { visibility: hidden; }
+  #printable-standee, #printable-standee * { visibility: visible; }
   #printable-standee {
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 0; top: 0;
     width: 100% !important;
     max-width: none !important;
     height: 100vh !important;

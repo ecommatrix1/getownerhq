@@ -141,7 +141,7 @@ export const BillingPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
       </div>
     );
   }
@@ -150,7 +150,7 @@ export const BillingPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
-      
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Billing & Subscription</h1>
@@ -167,22 +167,22 @@ export const BillingPage: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left Column: Current Plan & Tiers */}
         <div className="lg:col-span-2 space-y-6">
-          
-          {/* Current Subscription Card (Linear Style) */}
-          <div className="bg-slate-900 text-white rounded-3xl p-6 shadow-md border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+
+          {/* Current Subscription Card — dark navy per spec */}
+          <div className="bg-navy-975 text-white rounded-2xl p-6 shadow-soft-dark border border-navy-600 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2.5 py-1 rounded-full">
                   Plan: {currentPlan}
                 </span>
-                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${currentStatus === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : currentStatus === 'trial' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${currentStatus === 'active' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : currentStatus === 'trial' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
                   Status: {currentStatus}
                 </span>
               </div>
-              
+
               <h2 className="text-xl font-extrabold tracking-tight mb-1">
                 {currentStatus === 'trial'
                   ? `Free Trial Ends in ${daysRemainingInTrial()} Days`
@@ -194,11 +194,11 @@ export const BillingPage: React.FC = () => {
                 {currentStatus === 'trial' ? 'Upgrade now to prevent losing write access to your dashboard.' : 'Your next billing cycle triggers automatically via Cashfree AutoPay.'}
               </p>
             </div>
-            
+
             {currentStatus === 'active' && (
               <button
                 onClick={handleCancelSubscription}
-                className="text-xs font-bold text-red-400 hover:text-red-300 border border-red-900/50 px-4 py-2 rounded-xl bg-red-900/20 transition-colors whitespace-nowrap"
+                className="text-xs font-bold text-red-300 hover:text-red-200 border border-red-900/50 px-4 py-2 rounded-xl bg-red-950/30 transition-colors whitespace-nowrap"
               >
                 Cancel Plan
               </button>
@@ -207,9 +207,9 @@ export const BillingPage: React.FC = () => {
 
           {/* Pricing Tiers Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {/* Starter Plan */}
-            <div className={`bg-white p-6 rounded-3xl border ${currentPlan === 'Starter' && currentStatus === 'active' ? 'border-2 border-blue-600 shadow-md ring-2 ring-blue-500/10' : 'border-slate-200'} flex flex-col justify-between`}>
+            <div className={`bg-white p-6 rounded-2xl border ${currentPlan === 'Starter' && currentStatus === 'active' ? 'border-2 border-brand-500 shadow-md ring-2 ring-brand-500/20' : 'border-slate-200'} flex flex-col justify-between`}>
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Starter</div>
                 <h4 className="text-xl font-extrabold text-slate-900">Under 100 Members</h4>
@@ -218,9 +218,9 @@ export const BillingPage: React.FC = () => {
                   <span className="text-xs font-medium text-slate-500">/ mo</span>
                 </div>
                 <ul className="space-y-2.5 text-xs font-medium text-slate-600 mb-6">
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Up to 100 members</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Unlimited QR registrations</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> WhatsApp manual reminders</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Up to 100 members</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Unlimited QR registrations</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> WhatsApp manual reminders</li>
                 </ul>
               </div>
               <button
@@ -233,27 +233,27 @@ export const BillingPage: React.FC = () => {
             </div>
 
             {/* Growth Plan */}
-            <div className={`bg-white p-6 rounded-3xl border-2 ${currentPlan === 'Growth' && currentStatus === 'active' ? 'border-blue-600 shadow-md ring-2 ring-blue-500/10' : 'border-blue-600'} flex flex-col justify-between relative`}>
-              <div className="absolute -top-3 left-6 bg-blue-600 text-white font-extrabold text-[9px] uppercase px-3 py-1 rounded-full shadow-sm tracking-wider">
+            <div className={`bg-white p-6 rounded-2xl border-2 border-brand-500 shadow-md flex flex-col justify-between relative`}>
+              <div className="absolute -top-3 left-6 bg-gradient-brand text-white font-extrabold text-[9px] uppercase px-3 py-1 rounded-full shadow-glow-brand tracking-wider">
                 Recommended
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1 mt-1">Growth</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 mb-1 mt-1">Growth</div>
                 <h4 className="text-xl font-extrabold text-slate-900">Unlimited</h4>
                 <div className="flex items-baseline gap-1 my-3">
                   <span className="text-3xl font-extrabold font-mono text-slate-900">₹999</span>
                   <span className="text-xs font-medium text-slate-500">/ mo</span>
                 </div>
                 <ul className="space-y-2.5 text-xs font-medium text-slate-600 mb-6">
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Unlimited capacity</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Advanced analytics</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Priority Support</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Unlimited capacity</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Advanced analytics</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-semantic-green" /> Priority Support</li>
                 </ul>
               </div>
               <button
                 onClick={() => handleTriggerCashfree('Growth', 999)}
                 disabled={checkoutLoading}
-                className="w-full py-2.5 bg-blue-600 text-white font-extrabold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                className="btn-brand w-full disabled:opacity-50"
               >
                 {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : currentPlan === 'Growth' && currentStatus === 'active' ? 'Current Plan' : 'Upgrade to Growth'}
               </button>
@@ -264,17 +264,17 @@ export const BillingPage: React.FC = () => {
 
         {/* Right Column: Methods & History */}
         <div className="space-y-6">
-          
+
           {/* Payment Method */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-slate-400" /> Payment Method
             </h3>
-            
+
             {currentStatus === 'active' ? (
               <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-6 bg-slate-800 rounded flex items-center justify-center">
+                  <div className="w-10 h-6 bg-navy-800 rounded flex items-center justify-center">
                     <span className="text-[8px] text-white font-bold tracking-wider">UPI / CC</span>
                   </div>
                   <div>
@@ -282,25 +282,25 @@ export const BillingPage: React.FC = () => {
                     <div className="text-[10px] text-slate-500 font-mono">Linked to ID: {gym.id.slice(0,8)}...</div>
                   </div>
                 </div>
-                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <div className="w-2 h-2 rounded-full bg-semantic-green"></div>
               </div>
             ) : (
               <div className="text-xs text-slate-500 font-medium p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
                 No active payment method linked. Select a plan to set up UPI AutoPay or Card billing via Cashfree.
               </div>
             )}
-            
+
             <div className="mt-4 flex items-center justify-center gap-3 grayscale opacity-60">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Secured by Cashfree Payments</span>
             </div>
           </div>
 
           {/* Billing History Placeholder */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
               <History className="w-4 h-4 text-slate-400" /> Billing History
             </h3>
-            
+
             <div className="space-y-3">
               {/* Dummy row */}
               <div className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:border-slate-200 transition-colors group cursor-default">
@@ -308,7 +308,7 @@ export const BillingPage: React.FC = () => {
                   <div className="text-xs font-bold text-slate-900">{currentPlan} Plan</div>
                   <div className="text-[10px] text-slate-500 font-mono mt-0.5">{new Date().toLocaleDateString()}</div>
                 </div>
-                <button className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Download Invoice">
+                <button className="text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Download Invoice">
                   <Download className="w-4 h-4" />
                 </button>
               </div>

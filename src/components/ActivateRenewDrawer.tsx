@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, CheckCircle, Calendar, Camera, Printer } from "lucide-react";
+import { X, CheckCircle, Calendar, Printer, MessageCircle, AlertTriangle, Sparkles, Clock, Hash } from "lucide-react";
 import { Member, GymPlan, PaymentMode } from "../types";
 import { api } from "../lib/api";
 import { useDashboard } from "./DashboardContext";
@@ -12,6 +12,15 @@ interface ActivateRenewDrawerProps {
   onClose: () => void;
   onSuccess: (receiptNumber: string, shouldPrint: boolean) => void;
 }
+
+const PAYMENT_MODES: PaymentMode[] = ['UPI', 'Cash', 'Card', 'Bank Transfer'];
+
+const TONE_ACTIVE: Record<string, string> = {
+  UPI:            'border-semantic-purple bg-semantic-purple/10 text-semantic-purple dark:text-semantic-purple-dark ring-2 ring-semantic-purple/40',
+  Cash:           'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/40',
+  Card:           'border-brand-500 bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 ring-2 ring-brand-500/40',
+  'Bank Transfer':'border-amber-500 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/40',
+};
 
 export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
   member,
@@ -37,10 +46,6 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
     if (isOpen && member && gym) {
       setSuccessData(null);
 
-      // Determine initial start date:
-      // 1. If member has future expiry_date, use that (for active renewals).
-      // 2. Else if member has registered start_date (e.g. from QR signup), use that.
-      // 3. Otherwise default to today.
       const todayStr = new Date().toISOString().split("T")[0];
       let initialStartStr = todayStr;
       if (member.expiry_date) {
@@ -87,15 +92,13 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
     if (!startStr) return;
     const start = new Date(startStr);
     if (isNaN(start.getTime())) return;
-    
-    // Calendar month arithmetic
+
     const targetMonth = start.getMonth() + plan.duration_months;
     const expiry = new Date(start);
     expiry.setMonth(targetMonth);
-    
-    // Handle month-end clipping (e.g. Jan 31 + 1 month -> Feb 28/29)
+
     if (expiry.getMonth() !== targetMonth % 12) {
-      expiry.setDate(0); 
+      expiry.setDate(0);
     }
     setExpiryDate(expiry.toISOString().split("T")[0]);
   };
@@ -141,83 +144,118 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
     }
   };
 
+  const initials = member.full_name.substring(0, 2).toUpperCase();
+  const isActivate = member.status === "pending";
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-sm flex justify-end">
-      <div className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out border-l border-slate-200">
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-5 flex items-center justify-between shadow-sm">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1">
-              {member.status === "pending"
-                ? "Activate Member Plan"
-                : "Renew Membership"}
+    <>
+      <div
+        className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-up"
+        onClick={loading ? undefined : onClose}
+        aria-hidden
+      />
+
+      <div className="fixed inset-y-0 right-0 w-full max-w-lg bg-white dark:bg-surface-dark shadow-2xl z-50 flex flex-col border-l border-slate-200 dark:border-slate-800 animate-fade-up">
+
+        {/* Header with gradient accent strip */}
+        <div className="relative px-6 pt-6 pb-5 border-b border-slate-200 dark:border-slate-800 glass dark:glass-dark">
+          <div className={`absolute top-0 left-0 right-0 h-1 ${isActivate ? 'bg-gradient-brand' : 'bg-gradient-to-r from-emerald-500 via-brand-500 to-brand-400'}`} aria-hidden />
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="relative w-11 h-11 rounded-xl bg-gradient-brand flex items-center justify-center font-extrabold text-sm text-white flex-shrink-0 shadow-glow-brand">
+                {initials}
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-surface-dark" />
+              </div>
+              <div>
+                <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-1 ${
+                  isActivate
+                    ? 'bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300'
+                    : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                }`}>
+                  {isActivate ? <Sparkles className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                  {isActivate ? 'Activate Member Plan' : 'Renew Membership'}
+                </div>
+                <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 leading-tight tracking-tight">
+                  {member.full_name}
+                </h2>
+                <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5 [font-variant-numeric:tabular-nums]">
+                  {member.mobile}
+                </p>
+              </div>
             </div>
-            <h2 className="text-xl font-extrabold text-slate-900 leading-tight">
-              {member.full_name}
-            </h2>
-            <div className="text-xs text-slate-500 font-mono mt-0.5">
-              Mobile: {member.mobile}
-            </div>
+            <button
+              onClick={onClose}
+              disabled={loading}
+              aria-label="Close"
+              className="p-2 -m-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors disabled:opacity-50">
-            <X className="w-6 h-6" />
-          </button>
         </div>
 
         {/* Form Body */}
         {successData ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-5 text-center">
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center border-4 border-emerald-50 shadow-sm animate-bounce">
-              <CheckCircle className="w-10 h-10 text-emerald-600" />
+            <div className="relative">
+              <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full" aria-hidden />
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
+                <CheckCircle className="w-10 h-10 text-white" strokeWidth={2.5} />
+              </div>
             </div>
             <div>
-              <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-full mb-2 border border-emerald-200">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wider rounded-full mb-2 ring-1 ring-emerald-200 dark:ring-emerald-500/30">
                 Plan Status: Activated & Paid
               </span>
-              <h3 className="text-2xl font-extrabold text-slate-900 mb-1">Plan Activated Successfully!</h3>
-              <p className="text-sm text-slate-500 font-medium">Receipt #: <span className="font-mono font-bold text-slate-900">{successData.receiptNumber}</span></p>
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mb-1">Plan Activated Successfully!</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center justify-center gap-1.5">
+                <Hash className="w-3.5 h-3.5" />
+                Receipt:{' '}
+                <span className="font-mono font-bold text-slate-900 dark:text-slate-200 [font-variant-numeric:tabular-nums]">
+                  {successData.receiptNumber}
+                </span>
+              </p>
             </div>
-            
-            <div className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left text-xs font-mono space-y-2">
-              <div className="flex justify-between text-slate-500">
+
+            <div className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left text-xs font-mono space-y-2 [font-variant-numeric:tabular-nums]">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Member:</span>
-                <span className="font-bold text-slate-900">{member.full_name}</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">{member.full_name}</span>
               </div>
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Amount Paid:</span>
-                <span className="font-bold text-emerald-600">₹{amountPaid} ({paymentMode})</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">₹{amountPaid.toLocaleString('en-IN')} · {paymentMode}</span>
               </div>
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Valid Until:</span>
-                <span className="font-bold text-slate-900">{expiryDate}</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">{expiryDate}</span>
               </div>
             </div>
 
             <div className="w-full space-y-2.5">
-              <a 
+              <a
                 href={`https://wa.me/91${member.mobile}?text=${encodeURIComponent(`Thanks for your payment at ${gym?.name}, ${member.full_name}! Your membership is active until ${new Date(expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Receipt: ${successData.receiptNumber}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-extrabold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 active:scale-95 text-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5 transition-all text-sm"
               >
+                <MessageCircle className="w-4 h-4" />
                 Send WhatsApp Receipt & Pass
               </a>
 
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="w-full py-3 bg-white border border-slate-300 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
               >
-                <Printer className="w-4 h-4 text-slate-500" /> Print Tax Receipt
+                <Printer className="w-4 h-4 text-slate-500" />
+                Print Tax Receipt
               </button>
-              
+
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors text-sm"
+                className="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm"
               >
                 Done / Return to Dashboard
               </button>
@@ -227,14 +265,15 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
           <>
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {errorMsg && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
-                  {errorMsg}
+                <div className="p-3 bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-sm rounded-xl flex items-center gap-2 font-medium animate-fade-up">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                  <span>{errorMsg}</span>
                 </div>
               )}
 
               {/* 1. Select Plan */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5">
                   Select Membership Plan
                 </label>
                 <div className="grid grid-cols-1 gap-2.5">
@@ -246,25 +285,23 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                         key={p.id}
                         disabled={loading}
                         onClick={() => handlePlanSelect(p, startDate)}
-                        className={`p-3.5 rounded-xl border text-left flex items-center justify-between transition-all ${
+                        className={`group p-3.5 rounded-xl border text-left flex items-center justify-between transition-all duration-200 ease-spring ${
                           isSelected
-                            ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/20"
-                            : "border-slate-200 hover:border-slate-300 bg-white"
+                            ? "border-brand-500 bg-gradient-to-br from-brand-50 to-accent-500/5 dark:from-brand-500/15 dark:to-accent-500/10 ring-2 ring-brand-500/30 shadow-sm"
+                            : "border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500/50 bg-white dark:bg-slate-900/40"
                         } disabled:opacity-70`}>
                         <div>
-                          <div
-                            className={`font-bold text-sm ${isSelected ? "text-blue-900" : "text-slate-900"}`}>
+                          <div className={`font-bold text-sm ${isSelected ? 'text-brand-900 dark:text-brand-200' : 'text-slate-900 dark:text-slate-100'}`}>
                             {p.name}
                           </div>
-                          <div className="text-xs text-slate-500">
-                            Duration: {p.duration_months} Month
-                            {p.duration_months > 1 ? "s" : ""}
+                          <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3" />
+                            {p.duration_months} Month{p.duration_months > 1 ? "s" : ""}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div
-                            className={`font-mono font-bold text-lg ${isSelected ? "text-blue-700" : "text-slate-900"}`}>
-                            ₹{p.price}
+                          <div className={`font-mono font-extrabold text-lg [font-variant-numeric:tabular-nums] ${isSelected ? 'text-brand-700 dark:text-brand-300' : 'text-slate-900 dark:text-slate-100'}`}>
+                            ₹{p.price.toLocaleString('en-IN')}
                           </div>
                         </div>
                       </button>
@@ -273,92 +310,91 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                 </div>
               </div>
 
-              {/* 2. Dates Calculation */}
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              {/* 2. Dates */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                     Start Date
                   </label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => handleStartDateChange(e.target.value)}
-                      disabled={loading}
-                      style={{ colorScheme: 'light' }}
-                      className="w-full text-xs font-mono p-2 border border-slate-300 bg-white text-slate-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100"
-                      required
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
+                    disabled={loading}
+                    style={{ colorScheme: 'light dark' }}
+                    className="w-full text-sm font-mono px-3 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 transition-all [font-variant-numeric:tabular-nums]"
+                    required
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-700 uppercase mb-1">
-                    Expiry Date <span className="text-slate-400 font-normal lowercase">(Editable)</span>
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    <Calendar className="w-3 h-3" />
+                    Expiry Date
                   </label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      disabled={loading}
-                      style={{ colorScheme: 'light' }}
-                      className="w-full text-xs font-mono p-2 border border-blue-300 bg-blue-50 text-blue-900 font-bold rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100"
-                      required
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    disabled={loading}
+                    style={{ colorScheme: 'light dark' }}
+                    className="w-full text-sm font-mono font-bold px-3 py-2.5 border-2 border-brand-300 dark:border-brand-500/40 bg-brand-50/50 dark:bg-brand-500/10 text-brand-900 dark:text-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 transition-all [font-variant-numeric:tabular-nums]"
+                    required
+                  />
                 </div>
               </div>
 
-              {/* Dues Alert if any */}
+              {/* Dues Alert */}
               {(member.outstanding_dues || 0) > 0 && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                  <div className="flex items-center justify-between text-amber-900">
-                    <span className="text-sm font-bold">Outstanding Dues</span>
-                    <span className="font-mono font-bold">₹{member.outstanding_dues}</span>
+                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-500/15 dark:to-orange-500/10 border border-amber-200/70 dark:border-amber-500/30 p-3.5">
+                  <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-amber-500/10 blur-2xl pointer-events-none" aria-hidden />
+                  <div className="relative flex items-center justify-between text-amber-900 dark:text-amber-200">
+                    <span className="text-sm font-bold flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" />
+                      Outstanding Dues
+                    </span>
+                    <span className="font-mono font-extrabold text-base [font-variant-numeric:tabular-nums]">�{member.outstanding_dues}</span>
                   </div>
-                  <div className="text-xs text-amber-700 mt-1">This amount has been added to the total collected. Activating this plan will clear all pending dues.</div>
+                  <p className="relative text-xs text-amber-700 dark:text-amber-300/80 mt-1.5 leading-snug">
+                    Added to total. Activating this plan will clear all pending dues.
+                  </p>
                 </div>
               )}
 
               {/* 3. Payment Details */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Total Amount Collected (₹)
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    Amount Collected (₹)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400 font-mono text-sm">
-                      ₹
-                    </span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-bold pointer-events-none">₹</span>
                     <input
                       type="number"
                       value={amountPaid}
                       onChange={(e) => setAmountPaid(Number(e.target.value))}
                       disabled={loading}
-                      className="w-full pl-8 pr-3 py-2 text-base font-mono font-bold border border-slate-300 bg-white text-slate-900 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100"
+                      className="w-full pl-9 pr-4 py-2.5 text-base font-mono font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 transition-all [font-variant-numeric:tabular-nums]"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                     Payment Mode
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {(
-                      ["UPI", "Cash", "Card", "Bank Transfer"] as PaymentMode[]
-                    ).map((mode) => (
+                    {PAYMENT_MODES.map((mode) => (
                       <button
                         type="button"
                         key={mode}
                         disabled={loading}
                         onClick={() => setPaymentMode(mode)}
-                        className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all ${
+                        className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all duration-200 ease-spring ${
                           paymentMode === mode
-                            ? "bg-[#2563EB] text-white border-blue-600 shadow-sm"
-                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                            ? TONE_ACTIVE[mode]
+                            : 'bg-white dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
                         } disabled:opacity-50`}>
                         {mode}
                       </button>
@@ -367,8 +403,9 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Transaction Ref / UTR / Card # <span className="text-slate-400 font-normal lowercase">(optional)</span>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    Transaction Ref / UTR / Card #
+                    <span className="text-slate-400 dark:text-slate-500 font-medium normal-case ml-1">(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -376,45 +413,47 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                     onChange={(e) => setTxnRef(e.target.value)}
                     placeholder={paymentMode === 'UPI' ? 'e.g. UTR 42398129031' : paymentMode === 'Card' ? 'e.g. Card Last 4 (4821)' : 'Reference / Txn ID'}
                     disabled={loading}
-                    className="w-full text-xs font-mono p-2.5 border border-slate-200 bg-slate-50 text-slate-900 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    className="w-full text-sm font-mono px-3 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none transition-all"
                   />
                 </div>
               </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="p-4 sm:p-5 bg-white border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="hidden sm:block">
-                <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+            <div className="p-4 sm:p-5 bg-gradient-to-b from-transparent to-slate-50/60 dark:to-slate-900/40 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+              <div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">
                   Total Payable
                 </div>
-                <div className="text-xl font-bold font-mono text-slate-900">
-                  ₹{amountPaid}
+                <div className="font-mono font-extrabold text-xl text-slate-900 dark:text-slate-100 [font-variant-numeric:tabular-nums]">
+                  ₹{amountPaid.toLocaleString('en-IN')}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleSubmit(false)}
                   disabled={loading}
-                  className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50 whitespace-nowrap">
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+                >
                   <CheckCircle className="w-4 h-4" />
-                  {loading ? "Saving..." : "Confirm"}
+                  {loading ? "Saving…" : "Confirm"}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSubmit(true)}
                   disabled={loading}
-                  className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2.5 bg-[#2563EB] text-white font-bold text-sm rounded-xl hover:bg-blue-700 shadow-sm transition-all active:scale-95 disabled:opacity-50 whitespace-nowrap">
+                  className="btn-brand !min-h-[44px] !min-w-0 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                >
                   <Printer className="w-4 h-4" />
-                  {loading ? "Processing..." : "Confirm & Print"}
+                  {loading ? "Processing…" : "Confirm & Print"}
                 </button>
               </div>
             </div>
           </>
         )}
       </div>
-    </div>
+    </>
   );
 };

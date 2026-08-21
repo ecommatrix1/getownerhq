@@ -276,9 +276,9 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
                   style={{ height: `${heightPercent}%` }}
                   className={`w-full max-w-[40px] rounded-t-xl transition-all duration-500 ease-out group-hover:scale-105 ${
                     isCurrentMonth
-                      ? 'bg-gradient-to-t from-blue-600 to-indigo-500 shadow-md shadow-blue-500/30'
+                      ? 'bg-gradient-to-t from-brand-600 to-brand-400 shadow-md shadow-brand-500/30'
                       : m.total > 0
-                      ? 'bg-slate-300 dark:bg-slate-700 group-hover:bg-blue-500 dark:group-hover:bg-blue-500'
+                      ? 'bg-slate-300 dark:bg-slate-700 group-hover:bg-brand-500 dark:group-hover:bg-brand-500'
                       : 'bg-slate-100 dark:bg-slate-800'
                   }`}
                 />

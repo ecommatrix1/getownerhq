@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Hexagon, Dumbbell, ArrowRight, Menu, X } from 'lucide-react';
+import { Dumbbell, ArrowRight, Menu, X, Sparkles, Sun, Moon } from 'lucide-react';
+import { useTheme } from './ThemeContext';
 
 interface NavbarProps {
   onNavigate: (route: string) => void;
@@ -8,6 +9,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
@@ -28,99 +30,115 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute }) => {
     onNavigate(route);
   };
 
+  const isActive = (path: string) => currentRoute === path;
+
+  const NavLink = ({
+    children,
+    onClick,
+    active = false,
+  }: {
+    children: React.ReactNode;
+    onClick: () => void;
+    active?: boolean;
+  }) => (
+    <button
+      onClick={onClick}
+      className={`relative text-sm font-semibold py-2 transition-colors duration-200 ${
+        active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400'
+      }`}
+    >
+      {children}
+      <span
+        className={`absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full bg-gradient-brand transition-transform duration-300 ease-spring origin-left ${
+          active ? 'scale-x-100' : 'scale-x-0'
+        }`}
+      />
+    </button>
+  );
+
   return (
-    <header className="sticky top-0 z-50 bg-[#162032]/95 backdrop-blur-md border-b border-slate-800 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        
+    <header className="sticky top-0 z-50 glass dark:glass-dark border-b border-slate-200/60 dark:border-navy-600/60">
+      <div className="container-page h-20 flex items-center justify-between">
+
         {/* Brand Logo */}
-        <button 
-          onClick={() => handleNav('/')} 
+        <button
+          onClick={() => handleNav('/')}
           className="flex items-center gap-3 text-left focus:outline-none group"
+          aria-label="getOwnerHQ home"
         >
-          <div className="relative w-10 h-10 flex items-center justify-center">
-            <Hexagon className="w-10 h-10 text-white fill-white/10 stroke-[1.5]" />
-            <Dumbbell className="w-5 h-5 text-white absolute" />
+          <div className="relative w-11 h-11 flex items-center justify-center rounded-xl bg-gradient-brand shadow-glow-brand transition-transform duration-300 ease-spring group-hover:scale-105 group-hover:rotate-3">
+            <Dumbbell className="w-5 h-5 text-white" strokeWidth={2.5} />
+            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
           </div>
           <div>
-            <div className="font-sans text-xl font-extrabold tracking-tight text-white leading-none">
-              getOwnerHQ
+            <div className="font-display text-2xl font-extrabold tracking-tight leading-none">
+              <span className="text-slate-900 dark:text-white">getOwner</span>
+              <span className="text-gradient-brand">HQ</span>
             </div>
-            <div className="text-[11px] text-slate-400 font-medium tracking-wide mt-1">
-              Gym Management Made Simple
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide mt-1 hidden sm:flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-brand-500" />
+              Gym Management, Reinvented
             </div>
           </div>
         </button>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-          <button
-            onClick={() => handleNav('/')}
-            className={`text-sm font-semibold relative py-1 transition-colors ${
-              currentRoute === '/' ? 'text-white' : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            Home
-            {currentRoute === '/' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"></span>
-            )}
-          </button>
-
-          <button
-            onClick={() => scrollToSection('how-it-works')}
-            className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-          >
-            How It Works
-          </button>
-
-          <button
-            onClick={() => scrollToSection('pricing')}
-            className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-          >
-            Pricing
-          </button>
-
-          <button
-            onClick={() => scrollToSection('faq')}
-            className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-          >
-            FAQ
-          </button>
-
-          <button
-            onClick={() => scrollToSection('contact')}
-            className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-          >
-            Contact
-          </button>
-
-          <button
-            onClick={() => handleNav('/login')}
-            className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-          >
-            Login
-          </button>
-
-          <button
-            onClick={() => handleNav('/signup')}
-            className="flex items-center gap-2 text-sm font-bold bg-[#4353FF] hover:bg-[#3543E0] text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-600/30 transition-all active:scale-95"
-          >
-            Start Free Trial
-            <ArrowRight className="w-4 h-4" />
-          </button>
+        <nav className="hidden lg:flex items-center gap-8">
+          <NavLink onClick={() => handleNav('/')} active={isActive('/')}>Home</NavLink>
+          <NavLink onClick={() => scrollToSection('how-it-works')}>How It Works</NavLink>
+          <NavLink onClick={() => scrollToSection('pricing')}>Pricing</NavLink>
+          <NavLink onClick={() => scrollToSection('faq')}>FAQ</NavLink>
+          <NavLink onClick={() => scrollToSection('contact')}>Contact</NavLink>
+          <NavLink onClick={() => handleNav('/login')} active={isActive('/login')}>Login</NavLink>
         </nav>
 
-        {/* Mobile Action Controls */}
-        <div className="md:hidden flex items-center gap-2">
+        {/* Desktop CTA */}
+        <div className="hidden lg:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-700 dark:text-slate-300 bg-white/70 dark:bg-navy-800/70 border border-slate-200 dark:border-navy-600 hover:bg-brand-50 dark:hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
           <button
             onClick={() => handleNav('/login')}
-            className="px-3 py-1.5 text-xs font-bold bg-white/10 border border-slate-700 rounded-lg text-white hover:bg-white/20 transition-colors"
+            className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors px-4 py-2"
           >
-            Login
+            Sign in
+          </button>
+          <button
+            onClick={() => handleNav('/signup')}
+            className="btn-brand group"
+          >
+            Start Free Trial
+            <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-spring group-hover:translate-x-1" />
+          </button>
+        </div>
+
+        {/* Mobile Action Controls */}
+        <div className="lg:hidden flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-xl text-slate-700 dark:text-slate-300 bg-white/70 dark:bg-navy-800/70 border border-slate-200 dark:border-navy-600 hover:bg-brand-50 dark:hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={() => handleNav('/signup')}
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-gradient-brand text-white shadow-glow-brand"
+          >
+            Free Trial
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+            className="p-2.5 rounded-xl border border-slate-200 dark:border-navy-600 bg-white/80 dark:bg-navy-800/80 text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-200"
             aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -128,55 +146,59 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute }) => {
 
       </div>
 
-      {/* Mobile Drawer Menu Dropdown */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-[#162032] px-4 py-6 space-y-4 shadow-2xl animate-in slide-in-from-top-2 duration-200">
-          <button
-            onClick={() => handleNav('/')}
-            className={`block w-full text-left py-2 text-base font-bold transition-colors ${
-              currentRoute === '/' ? 'text-blue-400' : 'text-slate-200 hover:text-white'
-            }`}
-          >
-            Home
-          </button>
-          <button
-            onClick={() => scrollToSection('how-it-works')}
-            className="block w-full text-left py-2 text-base font-bold text-slate-200 hover:text-white transition-colors"
-          >
-            How It Works
-          </button>
-          <button
-            onClick={() => scrollToSection('pricing')}
-            className="block w-full text-left py-2 text-base font-bold text-slate-200 hover:text-white transition-colors"
-          >
-            Pricing
-          </button>
-          <button
-            onClick={() => scrollToSection('faq')}
-            className="block w-full text-left py-2 text-base font-bold text-slate-200 hover:text-white transition-colors"
-          >
-            FAQ
-          </button>
-          <button
-            onClick={() => scrollToSection('contact')}
-            className="block w-full text-left py-2 text-base font-bold text-slate-200 hover:text-white transition-colors"
-          >
-            Contact
-          </button>
-          <div className="pt-4 border-t border-slate-800/80 flex flex-col gap-3">
+        <div className="lg:hidden border-t border-slate-200/60 dark:border-navy-600/60 glass dark:glass-dark animate-fade-up">
+          <div className="container-page py-6 space-y-1">
             <button
-              onClick={() => handleNav('/login')}
-              className="w-full py-3 text-center text-base font-bold border border-slate-700 rounded-xl text-slate-200 hover:bg-slate-800 transition-colors"
+              onClick={() => handleNav('/')}
+              className={`block w-full text-left py-3 px-4 rounded-xl text-base font-bold transition-all duration-200 ${
+                isActive('/')
+                  ? 'bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300'
+                  : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
             >
-              Login
+              Home
             </button>
             <button
-              onClick={() => handleNav('/signup')}
-              className="w-full flex items-center justify-center gap-2 py-3.5 text-base font-bold bg-[#4353FF] hover:bg-[#3543E0] text-white rounded-xl shadow-lg shadow-blue-600/30 transition-all active:scale-95"
+              onClick={() => scrollToSection('how-it-works')}
+              className="block w-full text-left py-3 px-4 rounded-xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200"
             >
-              Start Free Trial
-              <ArrowRight className="w-5 h-5" />
+              How It Works
             </button>
+            <button
+              onClick={() => scrollToSection('pricing')}
+              className="block w-full text-left py-3 px-4 rounded-xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200"
+            >
+              Pricing
+            </button>
+            <button
+              onClick={() => scrollToSection('faq')}
+              className="block w-full text-left py-3 px-4 rounded-xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200"
+            >
+              FAQ
+            </button>
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="block w-full text-left py-3 px-4 rounded-xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200"
+            >
+              Contact
+            </button>
+            <div className="pt-4 mt-3 border-t border-slate-200/60 dark:border-navy-600/60 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleNav('/login')}
+                className="py-3.5 text-center text-base font-bold border border-slate-200 dark:border-navy-600 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-navy-800 transition-all duration-200"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => handleNav('/signup')}
+                className="btn-brand text-sm"
+              >
+                Free Trial
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}

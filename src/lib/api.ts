@@ -69,43 +69,52 @@ export const api = {
     return null;
   },
 
-  async getGymBySlug(slug: string): Promise<Gym | null> {
-    const cleanSlug = decodeURIComponent(slug || '').trim().replace(/\/+$/, '').toLowerCase();
-    if (!cleanSlug) return null;
+  async getGymBySlug(slug: string): Promise<{ gym: Gym | null; error?: string }> {
+    const rawSlug = decodeURIComponent(slug || '').trim().replace(/\/+$/, '');
+    if (!rawSlug) return { gym: null, error: 'Invalid registration link.' };
+    const cleanSlug = rawSlug.toLowerCase();
 
+    // PRIMARY: real DB lookup. With the "Public can view basic gym slug info" RLS policy,
+    // anon users CAN read gyms. If this returns null the gym truly doesn't exist —
+    // we must NOT invent one, because the FK on members.gym_id will reject a fake id.
     try {
       const { data, error } = await supabase
         .from("gyms")
         .select("*")
-        .ilike("slug", cleanSlug)
+        .eq("slug", cleanSlug)
         .maybeSingle();
 
-      if (!error && data) {
-        return data as Gym;
+      if (error) {
+        console.error("[getGymBySlug] Supabase error:", error);
+        return { gym: null, error: 'Could not reach the gym database. Please check your connection and try again.' };
       }
+      if (data) return { gym: data as Gym };
+
+      // Fallback 1: case-insensitive search
+      const { data: data2, error: error2 } = await supabase
+        .from("gyms")
+        .select("*")
+        .ilike("slug", cleanSlug)
+        .maybeSingle();
+      if (error2) {
+        return { gym: null, error: 'Could not reach the gym database. Please check your connection and try again.' };
+      }
+      if (data2) return { gym: data2 as Gym };
+
+      // Fallback 2: any gym whose slug ENDS with the code (handles truncated/prefix QR codes)
+      const { data: data3 } = await supabase
+        .from("gyms")
+        .select("*")
+        .ilike("slug", `%${cleanSlug}`)
+        .limit(1)
+        .maybeSingle();
+      if (data3) return { gym: data3 as Gym };
+
+      return { gym: null, error: `No gym registered with code "${rawSlug}". Please check the QR code or ask the front desk.` };
     } catch (e) {
-      console.warn("Supabase getGymBySlug fallback engaged:", e);
+      console.error("[getGymBySlug] Exception:", e);
+      return { gym: null, error: 'Unexpected error loading gym. Please try again.' };
     }
-
-    // Dynamic Fallback: If DB query returns null or RLS restricts anon select, generate Gym from slug
-    const formattedName = cleanSlug
-      .split(/[-_]+/)
-      .filter(Boolean)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-
-    return {
-      id: `gym-${cleanSlug}`,
-      owner_user_id: 'owner-public',
-      name: formattedName || 'Fitness Club',
-      city: 'Fitness Center',
-      slug: cleanSlug,
-      trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      subscription_status: 'active',
-      subscription_plan: 'Growth',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    } as Gym;
   },
 
   async signUpOwner(
@@ -290,40 +299,69 @@ export const api = {
     fullName: string,
     mobile: string,
     joinDate?: string,
-  ) {
-    const cleanMobile = mobile.replace(/\D/g, "");
-    const { data, error } = await supabase
-      .from("members")
-      .insert({
-        gym_id: gymId,
-        full_name: fullName.trim(),
-        mobile: cleanMobile,
-        status: "pending",
-        start_date: joinDate || null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === "23505") {
-        return {
-          success: false,
-          message:
-            "This mobile number is already registered at this gym. Please speak to reception to activate your pass.",
-        };
-      }
-      console.error("[Public Registration] Insert failed:", error.message);
+  ): Promise<{ success: boolean; message: string; member?: Member; code?: string }> {
+    // Guard against the fake-gym-id bug from older clients / stale code paths.
+    // Real Supabase UUIDs are 36 chars; anything else means the gym is bogus.
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRe.test(gymId || "")) {
       return {
         success: false,
-        message: "Registration could not be saved. Please try again or ask reception to add you manually.",
+        message: "This gym code isn't recognized. Please scan the QR standee at the front desk again.",
+        code: "BAD_GYM_ID",
       };
     }
 
-    return {
-      success: true,
-      message: "Registration successful!",
-      member: data as Member,
-    };
+    const cleanMobile = mobile.replace(/\D/g, "");
+    try {
+      const { data, error } = await supabase
+        .from("members")
+        .insert({
+          gym_id: gymId,
+          full_name: fullName.trim(),
+          mobile: cleanMobile,
+          status: "pending",
+          start_date: joinDate || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === "23505") {
+          return {
+            success: false,
+            message:
+              "This mobile number is already registered at this gym. Please speak to reception to activate your pass.",
+            code: "DUPLICATE",
+          };
+        }
+        if (error.code === "23503" || /foreign key/i.test(error.message)) {
+          return {
+            success: false,
+            message: "This gym profile is no longer available. Please ask the front desk for a fresh QR code.",
+            code: "GYM_GONE",
+          };
+        }
+        console.error("[Public Registration] Insert failed:", error);
+        return {
+          success: false,
+          message: `Couldn't save your registration: ${error.message || "unknown error"}. Please try again or ask reception.`,
+          code: error.code || "DB_ERROR",
+        };
+      }
+
+      return {
+        success: true,
+        message: "Registration successful!",
+        member: data as Member,
+      };
+    } catch (e: any) {
+      console.error("[Public Registration] Exception:", e);
+      return {
+        success: false,
+        message: "Network hiccup — couldn't reach the server. Please try again.",
+        code: "NETWORK",
+      };
+    }
   },
 
   async addMemberManual(gymId: string, fullName: string, mobile: string) {

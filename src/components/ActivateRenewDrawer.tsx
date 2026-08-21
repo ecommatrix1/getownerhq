@@ -321,8 +321,7 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                     value={startDate}
                     onChange={(e) => handleStartDateChange(e.target.value)}
                     disabled={loading}
-                    style={{ colorScheme: 'light dark' }}
-                    className="w-full text-sm font-mono px-3 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 transition-all [font-variant-numeric:tabular-nums]"
+                    className="w-full text-sm font-mono px-3 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 dark:disabled:bg-slate-800 transition-all [font-variant-numeric:tabular-nums] dark:[color-scheme:dark]"
                     required
                   />
                 </div>
@@ -337,8 +336,7 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(e.target.value)}
                     disabled={loading}
-                    style={{ colorScheme: 'light dark' }}
-                    className="w-full text-sm font-mono font-bold px-3 py-2.5 border-2 border-brand-300 dark:border-brand-500/40 bg-brand-50/50 dark:bg-brand-500/10 text-brand-900 dark:text-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 transition-all [font-variant-numeric:tabular-nums]"
+                    className="w-full text-sm font-mono font-bold px-3 py-2.5 border-2 border-brand-300 dark:border-brand-500/40 bg-brand-50/50 dark:bg-brand-500/10 text-brand-900 dark:text-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 transition-all [font-variant-numeric:tabular-nums] dark:[color-scheme:dark]"
                     required
                   />
                 </div>
@@ -371,8 +369,13 @@ export const ActivateRenewDrawer: React.FC<ActivateRenewDrawerProps> = ({
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-bold pointer-events-none">₹</span>
                     <input
                       type="number"
-                      value={amountPaid}
-                      onChange={(e) => setAmountPaid(Number(e.target.value))}
+                      value={amountPaid === 0 ? '' : amountPaid}
+                      placeholder="0"
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setAmountPaid(val === '' ? 0 : Number(val));
+                      }}
+                      onFocus={(e) => e.target.select()}
                       disabled={loading}
                       className="w-full pl-9 pr-4 py-2.5 text-base font-mono font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none disabled:bg-slate-100 transition-all [font-variant-numeric:tabular-nums]"
                       required

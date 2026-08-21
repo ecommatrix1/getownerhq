@@ -50,18 +50,18 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 flex flex-col font-sans transition-colors duration-200">
       <Navbar onNavigate={onNavigate} currentRoute="/signup" />
 
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-xl p-8">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 transition-colors">
           
           <div className="text-center mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3 border border-blue-100 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 border border-blue-100 dark:border-blue-800/50 shadow-sm">
               <Dumbbell className="w-6 h-6" />
             </div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Start 1-Month Free Trial</h1>
-            <p className="text-sm text-slate-500 mt-1 font-medium">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Start 1-Month Free Trial</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
               Create your gym account. No credit card required.
             </p>
           </div>
@@ -76,7 +76,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Gym Name
               </label>
               <div className="relative">
@@ -86,14 +86,14 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
                   placeholder="e.g. Powerhouse Gym"
                   value={gymName}
                   onChange={(e) => setGymName(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400 transition-colors"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 City / Location
               </label>
               <div className="relative">
@@ -103,14 +103,14 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
                   placeholder="e.g. Mumbai"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400 transition-colors"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Owner Email Address
               </label>
               <div className="relative">
@@ -120,14 +120,14 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
                   placeholder="owner@yourgym.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400 transition-colors"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Password
               </label>
               <div className="relative">
@@ -137,7 +137,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
                   placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400 transition-colors"
                   required
                 />
               </div>

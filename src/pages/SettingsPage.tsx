@@ -50,6 +50,14 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (window.location.hash.includes('plans')) {
+      setTimeout(() => {
+        document.getElementById('plans-manager')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  }, []);
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!gym) return;
@@ -174,7 +182,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Tagline / Motto
                 </label>
                 <input
@@ -182,37 +190,39 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
                   placeholder="Transform Your Mind & Body"
-                  className="w-full text-sm p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                  className="w-full text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Owner Name
                   </label>
                   <input
                     type="text"
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
-                    className="w-full text-sm p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    placeholder="Owner Name"
+                    className="w-full text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Owner Mobile Phone
                   </label>
                   <input
                     type="text"
                     value={ownerMobile}
                     onChange={(e) => setOwnerMobile(e.target.value)}
-                    className="w-full text-sm font-mono p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    placeholder="Mobile Number"
+                    className="w-full text-sm font-mono font-medium text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     UPI ID for Receipts
                   </label>
                   <input
@@ -220,11 +230,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="gymname@upi"
-                    className="w-full text-sm font-mono p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    className="w-full text-sm font-mono font-medium text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                     <span>Google Place ID</span>
                     <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline lowercase text-[10px] normal-case">How to find?</a>
                   </label>
@@ -233,7 +243,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
                     value={googlePlaceId}
                     onChange={(e) => setGooglePlaceId(e.target.value)}
                     placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4"
-                    className="w-full text-sm font-mono p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    className="w-full text-sm font-mono font-medium text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                   />
                 </div>
               </div>
@@ -241,7 +251,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
               <div className="pt-4 flex justify-end">
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-slate-800 shadow-sm"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-brand-500 text-white font-bold text-sm rounded-xl hover:bg-slate-800 dark:hover:bg-brand-600 shadow-sm"
                 >
                   <Save className="w-4 h-4" /> Save Profile Settings
                 </button>
@@ -250,7 +260,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
           </div>
 
           {/* Membership Plans Manager */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div id="plans-manager" className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm scroll-mt-24">
             <h2 className="text-lg font-extrabold text-slate-900 mb-6">
               Membership Plans Manager
             </h2>

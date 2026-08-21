@@ -170,8 +170,12 @@ export const PartialPaymentDrawer: React.FC<PartialPaymentDrawerProps> = ({
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500 dark:text-slate-400 pointer-events-none">₹</span>
                   <input
                     type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
+                    value={amount === 0 ? '' : amount}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setAmount(val === '' ? 0 : Number(val));
+                    }}
+                    onFocus={(e) => e.target.select()}
                     max={fullAmount}
                     className="w-full pl-9 pr-4 py-3 text-lg font-bold font-mono border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 focus:outline-none text-slate-900 dark:text-white transition-all [font-variant-numeric:tabular-nums]"
                     placeholder="0"

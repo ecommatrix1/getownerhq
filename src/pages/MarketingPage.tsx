@@ -24,6 +24,7 @@ import {
   LayoutDashboard,
   Sun,
   Moon,
+  AlertCircle,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
@@ -65,10 +66,10 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
           {/* LEFT COLUMN */}
           <div className="lg:col-span-6 space-y-6">
 
-            {/* Small Badge: For Gym Owners */}
+            {/* Small Badge: World's Easiest Management Platform */}
             <div className="inline-flex items-center gap-2 bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-navy-600 text-slate-700 dark:text-slate-200 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md">
               <User className="w-3.5 h-3.5 text-brand-500 dark:text-brand-400" />
-              <span>For Gym Owners</span>
+              <span>World's Easiest Management for Gyms, Studios & Academies</span>
             </div>
 
             {/* H1 hero — spec scale: 64px / 600 / tight tracking */}
@@ -189,16 +190,16 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                {/* 4 Metric Cards Row — semantic colors */}
+                {/* 4 Metric Cards Row — Design 1 Multi-Color Semantic Accent */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
 
                   <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-600 mb-1">
-                      <span>Total Members</span>
+                      <span>Active Members</span>
                       <Users className="w-3 h-3 text-semantic-blue" />
                     </div>
-                    <div className="text-lg font-black text-slate-900">128</div>
-                    <div className="text-[9px] text-slate-400 font-medium">All time</div>
+                    <div className="text-lg font-black text-slate-900">428</div>
+                    <div className="text-[9px] text-semantic-blue font-bold flex items-center gap-0.5">↑ 12 this month</div>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -206,26 +207,26 @@ export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
                       <span>Expiring Soon</span>
                       <Calendar className="w-3 h-3 text-brand-500" />
                     </div>
-                    <div className="text-lg font-black text-slate-900">12</div>
-                    <div className="text-[9px] text-slate-400 font-medium">Next 3 days</div>
+                    <div className="text-lg font-black text-slate-900">17</div>
+                    <div className="text-[9px] text-brand-600 font-bold">Within 7 days</div>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <div className="flex items-center justify-between text-[10px] font-bold text-semantic-purple mb-1">
-                      <span>Pending</span>
-                      <Clock className="w-3 h-3 text-semantic-purple" />
+                    <div className="flex items-center justify-between text-[10px] font-bold text-rose-600 mb-1">
+                      <span>Overdue</span>
+                      <AlertCircle className="w-3 h-3 text-rose-500" />
                     </div>
-                    <div className="text-lg font-black text-slate-900">5</div>
-                    <div className="text-[9px] text-slate-400 font-medium">Awaiting approval</div>
+                    <div className="text-lg font-black text-slate-900">14</div>
+                    <div className="text-[9px] text-rose-600 font-bold">Over 7 days</div>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <div className="flex items-center justify-between text-[10px] font-bold text-semantic-green mb-1">
-                      <span>Active</span>
-                      <CheckCircle2 className="w-3 h-3 text-semantic-green" />
+                    <div className="flex items-center justify-between text-[10px] font-bold text-emerald-600 mb-1">
+                      <span>Revenue This Month</span>
+                      <IndianRupee className="w-3 h-3 text-emerald-500" />
                     </div>
-                    <div className="text-lg font-black text-slate-900">95</div>
-                    <div className="text-[9px] text-slate-400 font-medium">Active members</div>
+                    <div className="text-lg font-black text-slate-900">₹82,400</div>
+                    <div className="text-[9px] text-emerald-600 font-bold flex items-center gap-0.5">↑ 18% vs last month</div>
                   </div>
 
                 </div>

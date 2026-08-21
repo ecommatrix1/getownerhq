@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute }) => {
             </div>
             <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide mt-1 hidden sm:flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-brand-500" />
-              Gym Management, Reinvented
+              World's Easiest Management Platform
             </div>
           </div>
         </button>

@@ -86,8 +86,13 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({ isOpen, onClose, onSuc
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
               <input
                 type="number"
-                value={amount || ''}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                value={amount === 0 ? '' : amount}
+                placeholder="0"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAmount(val === '' ? 0 : Number(val));
+                }}
+                onFocus={(e) => e.target.select()}
                 className="w-full pl-9 pr-4 py-3 text-base font-mono font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-accent-500/40 focus:border-accent-400 focus:outline-none transition-all [font-variant-numeric:tabular-nums]"
                 required
                 autoFocus

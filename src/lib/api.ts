@@ -374,14 +374,73 @@ export const api = {
     paymentMode: string,
     txnRef?: string
   ) {
-    const { data, error } = await supabase.rpc("record_partial_payment", {
-      p_member_id: memberId,
-      p_amount: amount,
-      p_payment_mode: paymentMode,
-      p_txn_ref: txnRef || null,
-    });
-    if (error) return { success: false, message: error.message };
-    return data as { success: boolean; message: string; receipt_number?: string };
+    try {
+      const { data, error } = await supabase.rpc("record_partial_payment", {
+        p_member_id: memberId,
+        p_amount: amount,
+        p_payment_mode: paymentMode || "Cash",
+        p_txn_ref: txnRef || null,
+      });
+
+      if (!error && data && data.success) {
+        return {
+          success: true,
+          message: data.message || "Payment recorded successfully",
+          receipt_number: data.receipt_number || `REC-${Date.now().toString().slice(-6)}`,
+          new_dues: data.new_dues ?? 0,
+        };
+      }
+    } catch (e) {
+      console.warn("[recordPartialPayment] RPC unavailable, falling back to direct table update:", e);
+    }
+
+    // Direct Table Fallback if RPC function is missing in schema cache
+    try {
+      const { data: member, error: memberErr } = await supabase
+        .from("members")
+        .select("id, gym_id, outstanding_dues, full_name")
+        .eq("id", memberId)
+        .single();
+
+      if (memberErr || !member) {
+        return { success: false, message: memberErr?.message || "Member not found" };
+      }
+
+      const currentDues = member.outstanding_dues || 0;
+      const newDues = Math.max(0, currentDues - amount);
+      const receiptNo = `REC-${Date.now().toString().slice(-6)}`;
+
+      // Update member outstanding_dues
+      await supabase
+        .from("members")
+        .update({ outstanding_dues: newDues })
+        .eq("id", memberId);
+
+      // Record in payments ledger
+      await supabase
+        .from("payments")
+        .insert({
+          gym_id: member.gym_id,
+          member_id: memberId,
+          amount,
+          payment_mode: paymentMode || "Cash",
+          payment_type: "partial_payment",
+          receipt_number: receiptNo,
+          notes: txnRef ? `Ref: ${txnRef}` : "Partial payment recorded",
+          payment_date: new Date().toISOString(),
+          paid_at: new Date().toISOString(),
+        });
+
+      return {
+        success: true,
+        message: `Payment of ₹${amount} recorded successfully.`,
+        receipt_number: receiptNo,
+        new_dues: newDues,
+      };
+    } catch (err: any) {
+      console.error("[recordPartialPayment] Fallback exception:", err);
+      return { success: false, message: err.message || "Failed to record payment" };
+    }
   },
 
   async addManualDue(

@@ -24,7 +24,7 @@
   }
 
   body {
-    @apply bg-[#E2E8F0] text-slate-900 font-sans antialiased
+    @apply bg-[#ECEBFA] text-slate-900 font-sans antialiased
            dark:bg-[#0A0A0C] dark:text-white
            transition-colors duration-300;
     font-feature-settings: "cv11", "ss01", "ss03";

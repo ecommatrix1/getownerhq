@@ -49,8 +49,8 @@ export default {
         },
         // light & pitch black surface definitions
         surface: {
-          DEFAULT: '#E2E8F0',  // deeper neutral muted gray (0 glare, comfortable)
-          section: '#E2E8F0',  // section bg light
+          DEFAULT: '#ECEBFA',  // Spectrum.Life Soft Lavender Slate Gray (0 glare, ultra-soft tone)
+          section: '#ECEBFA',  // section bg light
           card:    '#FFFFFF',  // card bg light
           dark:    '#0A0A0C',  // pitch obsidian canvas
           'section-dark': '#0F0F12',

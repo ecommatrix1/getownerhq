@@ -93,13 +93,13 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
   }, [activeMonths]);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6 transition-all duration-300">
+    <div className="bg-white dark:bg-[#121215] border-2 border-slate-300 dark:border-zinc-800 rounded-3xl p-6 shadow-md space-y-6 transition-all duration-300">
       
       {/* Top Header, Timeframe & Collapse Toggle */}
-      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${isCollapsed ? '' : 'border-b border-slate-100 dark:border-slate-800 pb-4'}`}>
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${isCollapsed ? '' : 'border-b border-slate-100 dark:border-zinc-800 pb-4'}`}>
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-500/15 text-brand-500 flex items-center justify-center font-bold">
               <BarChart3 className="w-4 h-4" />
             </div>
             <h2 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">

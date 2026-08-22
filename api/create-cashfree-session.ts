@@ -83,7 +83,7 @@ export default async function handler(req: any, res: any) {
         payment_methods: ["enach", "upi", "card"],
       },
       subscription_meta: {
-        return_url: `https://www.getownerhq.in/#/dashboard/billing?subscription_id=${subscriptionId}`,
+        return_url: `https://www.getownerhq.in/api/cashfree-return?subscription_id=${subscriptionId}&gym_id=${gym_id}&plan_name=${encodeURIComponent(plan_name)}`,
         notification_url: "https://www.getownerhq.in/api/cashfree-webhook",
       },
       subscription_note: `getOwnerHQ ${plan_name} Subscription Mandate`,

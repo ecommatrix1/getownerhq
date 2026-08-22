@@ -138,36 +138,17 @@ export const BillingPage: React.FC = () => {
       }
 
       // 5. Server-side fetch subscription authorization status using subscription_id
-      const verifyRes = await fetch("/api/verify-cashfree-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subscription_id: createData.subscription_id,
-          gym_id: gym.id,
-          plan_name: planName,
-        }),
-      });
+      // Cashfree handles the customer authorization flow.
+      // After authorization, Cashfree POSTs to /api/cashfree-return.
+      // That server endpoint verifies the subscription and redirects
+      // the customer back to this billing page.
 
-      const verifyData = await verifyRes.json();
+      console.log(
+        "Cashfree checkout opened. Waiting for customer authorization...",
+      );
 
-      // 6. Update local UI state ONLY if server verification confirms subscription_status === ACTIVE
-      if (
-        verifyRes.ok &&
-        verifyData.success &&
-        verifyData.subscription_status === "ACTIVE"
-      ) {
-        setCurrentStatus("active");
-        setCurrentPlan(planName);
-        setToastMessage(
-          `Success! Subscription mandate authorized. ${planName} Plan is now Active.`,
-        );
-        setTimeout(() => setToastMessage(null), 5000);
-      } else {
-        setToastMessage(
-          `Subscription authorization incomplete (Status: ${verifyData.subscription_status || "CANCELLED"}). Plan was not updated.`,
-        );
-        setTimeout(() => setToastMessage(null), 6000);
-      }
+      setCheckoutLoading(false);
+      return;
     } catch (err: any) {
       console.error("Cashfree subscription checkout error:", err);
       alert(

@@ -85,10 +85,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 flex flex-col font-sans text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="min-h-screen bg-[#ECEBFA] dark:bg-[#0A0A0C] flex flex-col font-sans text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Trial / Read-Only Banners */}
       {isReadOnly ? (
-        <div className="bg-red-600 text-white px-4 py-3 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md z-40 relative">
+        <div className="bg-red-600 text-white px-4 py-2.5 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md z-40 relative">
           <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
             <ShieldAlert className="w-5 h-5 flex-shrink-0" />
             <span>
@@ -103,7 +103,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </button>
         </div>
       ) : safeGym.subscription_status === 'trial' && !isReadOnly ? (
-        <div className="bg-blue-600 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-between">
+        <div className="bg-brand-500 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
             <Sparkles className="w-4 h-4 flex-shrink-0" />
             <span>

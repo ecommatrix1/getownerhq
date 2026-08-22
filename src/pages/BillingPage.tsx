@@ -110,7 +110,7 @@ export const BillingPage: React.FC = () => {
 
       // 4. Open Cashfree Subscription Checkout Modal using subscription_session_id
       const checkoutOptions = {
-        subscriptionSessionId: createData.subscription_session_id,
+        subsSessionId: createData.subscription_session_id,
         redirectTarget: "_self",
       };
       console.log("Cashfree checkout starting:", {
@@ -120,7 +120,7 @@ export const BillingPage: React.FC = () => {
         checkoutOptions,
       });
 
-      const result = await cashfree.checkout(checkoutOptions);
+      const result = await cashfree.subscriptionsCheckout(checkoutOptions);
 
       console.log("CASHFREE CHECKOUT RESULT:", result);
 

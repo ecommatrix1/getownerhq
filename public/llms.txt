@@ -1,51 +1,24 @@
-# # getOwnerHQ
+# getOwnerHQ
 
-> getOwnerHQ is a Multi-tenant SaaS platform built for Indian gym owners, fitness studios, MMA clubs & academies.
+> getOwnerHQ is a multi-tenant management platform built for Indian gym owners, fitness studios, MMA clubs, and athletic academies.
 
-## Features
-- Gym Member self-registrations via QR Code
-- Dashboard for tracking expiring memberships
-- Manual WhatsApp reminders & templates
-- Payments Ledger & financial tracking
-- Membership plans management
-- Billing & subscription management
-- Settings & gym profile management
-- A5 QR Standee printing
+## System Overview
+- [Home](https://www.getownerhq.in/): Primary landing page and platform features.
+- [Sign Up - Free Trial](https://www.getownerhq.in/#/signup): 1-month free trial registration for gym owners.
+- [Login](https://www.getownerhq.in/#/login): Secure gym owner dashboard portal.
+- [About Us](https://www.getownerhq.in/#/about): Mission and overview of getOwnerHQ.
+- [Terms of Service](https://www.getownerhq.in/#/terms): Platform terms and conditions.
+- [Privacy Policy](https://www.getownerhq.in/#/privacy): Data privacy policies.
+- [Refund Policy](https://www.getownerhq.in/#/refund): Subscription refund terms.
 
-## Technical Stack
-- Frontend: React 18, Vite, Tailwind CSS
-- Backend/Database: Supabase (PostgreSQL) with RLS
-- Payments: Cashfree (subscriptions, webhooks)
-- Deployment: Vercel/Netlify compatible
+## Comparison Pages
+- [Compare All](https://www.getownerhq.in/#/compare): Feature comparison matrix.
+- [GymOwl Alternative](https://www.getownerhq.in/#/compare/gymowl-alternative): getOwnerHQ vs GymOwl comparison.
+- [getOwnerHQ vs GymMaster](https://www.getownerhq.in/#/compare/getownerhq-vs-gymmaster): getOwnerHQ vs GymMaster comparison.
+- [getOwnerHQ vs Wodify](https://www.getownerhq.in/#/compare/getownerhq-vs-wodify): getOwnerHQ vs Wodify comparison.
 
-## Public Pages
-- [Home](/)
-- [Sign Up - Free Trial](/signup)
-- [Login](/login)
-- [Reset Password](/reset-password)
-- [About Us](/about)
-- [Terms of Service](/terms)
-- [Privacy Policy](/privacy)
-- [Refund Policy](/refund)
-
-## Comparison Pages (SEO & GEO)
-- [Compare All](/compare)
-- [GymOwl Alternative](/compare/gymowl-alternative)
-- [getOwnerHQ vs GymMaster](/compare/getownerhq-vs-gymmaster)
-- [getOwnerHQ vs Wodify](/compare/getownerhq-vs-wodify)
-
-## Authenticated Dashboard Routes (Requires Login)
-- [Dashboard Overview](/dashboard)
-- [Members](/dashboard/members)
-- [Payments Ledger](/dashboard/payments)
-- [Membership Plans](/dashboard/plans)
-- [WhatsApp Templates](/dashboard/whatsapp)
-- [Settings](/dashboard/settings)
-- [Billing & Subscription](/dashboard/billing)
-
-## QR Member Registration
-- [Member Self-Registration](/r/[gym-slug]) - Dynamic route for QR check-in
-
-## API Endpoints
-- `/api/verify-cashfree-session` - Verify Cashfree subscription status
-- `/api/cashfree-return` - Cashfree webhook return handler
+## Key Capabilities
+- Gym Member self-registrations via printable A5 QR Standee
+- Real-time expiring membership dashboard & automated status tracking
+- 1-tap WhatsApp renewal reminders & custom templates
+- Financial ledger, cashfree payment tracking, and revenue analytics

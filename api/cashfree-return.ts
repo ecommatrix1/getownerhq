@@ -1,6 +1,32 @@
+import crypto from 'crypto';
+
+function verifyCashfreeSignature(payload: string, signature: string, secret: string): boolean {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(signature));
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     return res.status(405).send("Method not allowed");
+  }
+
+  // Verify Cashfree webhook signature
+  const signature = req.headers['x-webhook-signature'] || req.headers['X-Webhook-Signature'];
+  const clientSecret = process.env.CASHFREE_CLIENT_SECRET;
+
+  if (clientSecret && signature) {
+    const rawBody = JSON.stringify(req.body || {});
+    if (!verifyCashfreeSignature(rawBody, signature, clientSecret)) {
+      console.error('[Cashfree Return] Invalid webhook signature');
+      return res.status(401).send('Invalid webhook signature');
+    }
+  } else if (clientSecret) {
+    // Signature header missing but we have secret configured - reject
+    console.error('[Cashfree Return] Missing webhook signature header');
+    return res.status(401).send('Missing webhook signature');
   }
 
   try {
@@ -21,7 +47,6 @@ export default async function handler(req: any, res: any) {
       planName,
       body,
     });
-
     if (!subscriptionId || !gymId || !planName) {
       console.error("[Cashfree Return] Missing required values");
 
@@ -44,48 +69,65 @@ export default async function handler(req: any, res: any) {
       return res.status(500).send("Cashfree credentials are not configured");
     }
 
-    // Fetch the final subscription status from Cashfree.
-    const response = await fetch(`${baseUrl}/subscriptions/${subscriptionId}`, {
-      method: "GET",
-      headers: {
-        "x-client-id": clientId,
-        "x-client-secret": clientSecret,
-        "x-api-version": "2023-08-01",
-        "Content-Type": "application/json",
-      },
+    // Cashfree already includes the verified authorization status directly
+    // in the callback body — no separate status-check call needed.
+    const cfStatus = String(body.cf_status || "").toUpperCase();
+    const cfCheckoutStatus = String(body.cf_checkoutStatus || "").toUpperCase();
+
+    console.log("[Cashfree Return] Callback status:", {
+      cfStatus,
+      cfCheckoutStatus,
     });
 
-    const data = await response.json();
-
-    console.log("[Cashfree Return] Subscription status:", data);
-
-    const status = String(data.subscription_status || "").toUpperCase();
+    const status =
+      cfStatus === "ACTIVE" || cfCheckoutStatus === "SUCCESS"
+        ? "ACTIVE"
+        : "UNKNOWN";
 
     // If Cashfree says ACTIVE, activate the gym through our
     // existing secure verification endpoint.
     if (status === "ACTIVE") {
-      const origin =
-        req.headers.origin ||
-        `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}`;
+      // Use the fixed production domain directly instead of deriving it from
+      // request headers, which can be unreliable behind Cashfree's redirect.
+      const verifyUrl = "https://www.getownerhq.in/api/verify-cashfree-session";
 
-      const verifyResponse = await fetch(
-        `${origin}/api/verify-cashfree-session`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            subscription_id: subscriptionId,
-            gym_id: gymId,
-            plan_name: planName,
-          }),
+      console.log("[Cashfree Return] Calling verify endpoint:", verifyUrl);
+
+      const verifyResponse = await fetch(verifyUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          subscription_id: subscriptionId,
+          gym_id: gymId,
+          plan_name: planName,
+        }),
+      });
+
+      const verifyText = await verifyResponse.text();
+
+      console.log(
+        "[Cashfree Return] Verify response status:",
+        verifyResponse.status,
       );
+      console.log("[Cashfree Return] Verify response body:", verifyText);
 
-      const verifyData = await verifyResponse.json();
-
-      console.log("[Cashfree Return] Verification result:", verifyData);
+      if (!verifyResponse.ok) {
+        console.error(
+          "[Cashfree Return] Verify call failed with non-OK status",
+        );
+      } else {
+        try {
+          const verifyData = JSON.parse(verifyText);
+          console.log("[Cashfree Return] Verification result:", verifyData);
+        } catch (parseErr) {
+          console.error(
+            "[Cashfree Return] Verify response was not valid JSON:",
+            verifyText,
+          );
+        }
+      }
     }
 
     // Send the customer back to the React billing page.

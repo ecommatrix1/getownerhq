@@ -114,12 +114,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       ) : null}
 
       {/* Top Navbar */}
-      <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors duration-200 shadow-sm dark:shadow-none">
+      <header className="bg-white/80 dark:bg-[#0A0A0C]/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 sticky top-0 z-30 transition-colors duration-200 shadow-sm dark:shadow-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           <div className="flex items-center gap-4">
             {/* Current Gym Display */}
-            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl">
+            <div className="flex items-center gap-3 bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-zinc-800 px-3 py-1.5 rounded-xl">
               <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                 {safeGym.name.charAt(0).toUpperCase()}
               </div>
@@ -188,8 +188,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         
         {/* Sidebar Navigation (Desktop) */}
         <aside className="hidden lg:block lg:col-span-1">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 shadow-sm sticky top-24 transition-colors duration-200">
-            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800 mb-2">
+          <div className="bg-white dark:bg-[#121215] rounded-2xl border border-slate-200 dark:border-zinc-800 p-3 shadow-sm sticky top-24 transition-colors duration-200">
+            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-zinc-800 mb-2">
               Gym Navigation
             </div>
             <nav className="space-y-1">

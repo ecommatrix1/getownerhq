@@ -188,7 +188,7 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* Metric 1: Selected Timeframe Revenue & MoM Growth */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
             <span>Period Total</span>
             <div className={`flex items-center gap-1 font-bold text-xs px-2 py-0.5 rounded-full ${
@@ -209,7 +209,7 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
         </div>
 
         {/* Metric 2: Monthly Average */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
             <span>Monthly Average</span>
             <Activity className="w-4 h-4 text-blue-500" />
@@ -224,7 +224,7 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
         </div>
 
         {/* Metric 3: Peak Earning Month */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
             <span>Best Month Record</span>
             <Award className="w-4 h-4 text-amber-500" />

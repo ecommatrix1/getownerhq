@@ -1,17 +1,51 @@
-# getOwnerHQ
+# # getOwnerHQ
 
-getOwnerHQ is a Multi-tenant SaaS platform built for Indian gym owners. 
+> getOwnerHQ is a Multi-tenant SaaS platform built for Indian gym owners, fitness studios, MMA clubs & academies.
 
 ## Features
 - Gym Member self-registrations via QR Code
 - Dashboard for tracking expiring memberships
-- Manual WhatsApp reminders
-- Payments Ledger
+- Manual WhatsApp reminders & templates
+- Payments Ledger & financial tracking
+- Membership plans management
+- Billing & subscription management
+- Settings & gym profile management
+- A5 QR Standee printing
 
 ## Technical Stack
-- Frontend: React, Vite, Tailwind CSS
-- Backend/Database: Supabase (PostgreSQL)
+- Frontend: React 18, Vite, Tailwind CSS
+- Backend/Database: Supabase (PostgreSQL) with RLS
+- Payments: Cashfree (subscriptions, webhooks)
+- Deployment: Vercel/Netlify compatible
 
-## Useful Links
-- [Sign Up](/signup)
+## Public Pages
+- [Home](/)
+- [Sign Up - Free Trial](/signup)
 - [Login](/login)
+- [Reset Password](/reset-password)
+- [About Us](/about)
+- [Terms of Service](/terms)
+- [Privacy Policy](/privacy)
+- [Refund Policy](/refund)
+
+## Comparison Pages (SEO & GEO)
+- [Compare All](/compare)
+- [GymOwl Alternative](/compare/gymowl-alternative)
+- [getOwnerHQ vs GymMaster](/compare/getownerhq-vs-gymmaster)
+- [getOwnerHQ vs Wodify](/compare/getownerhq-vs-wodify)
+
+## Authenticated Dashboard Routes (Requires Login)
+- [Dashboard Overview](/dashboard)
+- [Members](/dashboard/members)
+- [Payments Ledger](/dashboard/payments)
+- [Membership Plans](/dashboard/plans)
+- [WhatsApp Templates](/dashboard/whatsapp)
+- [Settings](/dashboard/settings)
+- [Billing & Subscription](/dashboard/billing)
+
+## QR Member Registration
+- [Member Self-Registration](/r/[gym-slug]) - Dynamic route for QR check-in
+
+## API Endpoints
+- `/api/verify-cashfree-session` - Verify Cashfree subscription status
+- `/api/cashfree-return` - Cashfree webhook return handler

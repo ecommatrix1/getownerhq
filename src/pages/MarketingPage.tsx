@@ -22,45 +22,28 @@ import {
   ChevronRight,
   ShieldCheck,
   LayoutDashboard,
-  Sun,
-  Moon,
   AlertCircle,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { useTheme } from '../components/ThemeContext';
 
 interface MarketingPageProps {
   onNavigate: (route: string) => void;
 }
 
 export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
-  const { theme, toggleTheme } = useTheme();
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen bg-white text-ink dark:bg-surface-dark dark:text-ink-inverse transition-colors duration-300 font-sans selection:bg-brand-500 selection:text-white">
+    <div className="min-h-screen bg-surface text-ink dark:bg-surface-dark dark:text-ink-inverse transition-colors duration-300 font-sans selection:bg-brand-500 selection:text-white">
       <Navbar onNavigate={onNavigate} currentRoute="/" />
 
       {/* Hero Section — orange + navy/charcoal, multi-color semantic typography */}
       <section className="relative pt-10 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="absolute inset-0 bg-mesh dark:bg-mesh-dark opacity-60 dark:opacity-70 pointer-events-none transition-opacity" aria-hidden />
-
-        {/* Theme toggle (top-right of hero, matches hero style) */}
-        <div className="relative flex justify-end mb-4">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white/70 dark:bg-navy-800/70 border border-slate-200 dark:border-navy-600 backdrop-blur hover:bg-brand-50 dark:hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-          >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-            <span>{theme === 'dark' ? 'Light' : 'Dark'} mode</span>
-          </button>
-        </div>
         <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
           {/* LEFT COLUMN */}

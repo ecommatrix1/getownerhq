@@ -1,3 +1,4 @@
+import { load } from "@cashfreepayments/cashfree-js";
 import React, { useState, useEffect } from "react";
 import {
   ShieldCheck,
@@ -14,21 +15,6 @@ import {
 } from "lucide-react";
 import { api } from "../lib/api";
 import { Gym } from "../types";
-
-// Load Cashfree JS SDK v3
-const loadCashfreeScript = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if ((window as any).Cashfree) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 export const BillingPage: React.FC = () => {
   const [gym, setGym] = useState<Gym | null>(null);
@@ -64,17 +50,7 @@ export const BillingPage: React.FC = () => {
     setCheckoutLoading(true);
 
     try {
-      // 1. Ensure Cashfree SDK script is loaded
-      const loaded = await loadCashfreeScript();
-      if (!loaded || !(window as any).Cashfree) {
-        alert(
-          "Cashfree JS SDK failed to load. Please check your internet connection.",
-        );
-        setCheckoutLoading(false);
-        return;
-      }
-
-      // 2. Call backend server to create Cashfree Subscription Session securely
+      // 1. Create the Cashfree Subscription Session on the backend
       const createRes = await fetch("/api/create-cashfree-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,24 +72,32 @@ export const BillingPage: React.FC = () => {
         !createData.subscription_session_id
       ) {
         console.error("Cashfree subscription creation failed:", createData);
+
         alert(
-          `Cashfree Subscription Initialization Failed: ${createData.message || "Server credentials or network error"}`,
+          `Cashfree Subscription Initialization Failed: ${
+            createData.message || "Server credentials or network error"
+          }`,
         );
-        setCheckoutLoading(false);
+
         return;
       }
 
-      // 3. Initialize Cashfree JS SDK with mode returned by server ('production' or 'sandbox')
-      const cashfree = (window as any).Cashfree({
-        mode: createData.mode || "production",
+      // 2. Load Cashfree JS SDK AFTER we know the required mode
+      const cashfree = await load({
+        mode: createData.mode || "sandbox",
       });
 
-      // 4. Open Cashfree Subscription Checkout Modal using subscription_session_id
+      if (!cashfree) {
+        throw new Error("Cashfree SDK failed to load");
+      }
+
+      // 3. Open Cashfree Subscription Checkout
       const checkoutOptions = {
         subsSessionId: createData.subscription_session_id,
         redirectTarget: "_self",
       };
-      console.log("Cashfree checkout starting:", {
+
+      console.log("Cashfree subscription checkout starting:", {
         mode: createData.mode,
         subscription_id: createData.subscription_id,
         subscription_session_id: createData.subscription_session_id,
@@ -133,26 +117,17 @@ export const BillingPage: React.FC = () => {
           }`,
         );
 
-        setCheckoutLoading(false);
         return;
       }
 
-      // 5. Server-side fetch subscription authorization status using subscription_id
-      // Cashfree handles the customer authorization flow.
-      // After authorization, Cashfree POSTs to /api/cashfree-return.
-      // That server endpoint verifies the subscription and redirects
-      // the customer back to this billing page.
-
-      console.log(
-        "Cashfree checkout opened. Waiting for customer authorization...",
-      );
-
-      setCheckoutLoading(false);
-      return;
+      console.log("Cashfree subscription checkout opened successfully.");
     } catch (err: any) {
       console.error("Cashfree subscription checkout error:", err);
+
       alert(
-        "Subscription payment flow encountered an error. Please try again.",
+        `Subscription payment flow encountered an error: ${
+          err?.message || "Please try again."
+        }`,
       );
     } finally {
       setCheckoutLoading(false);

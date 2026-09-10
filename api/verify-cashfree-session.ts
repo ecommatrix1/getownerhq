@@ -1,8 +1,33 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
+
+function verifyCashfreeSignature(payload: string, signature: string, secret: string): boolean {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(signature));
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
+  }
+
+  // Verify Cashfree webhook signature
+  const signature = req.headers['x-webhook-signature'] || req.headers['X-Webhook-Signature'];
+  const clientSecret = process.env.CASHFREE_CLIENT_SECRET;
+
+  if (clientSecret && signature) {
+    const rawBody = JSON.stringify(req.body || {});
+    if (!verifyCashfreeSignature(rawBody, signature, clientSecret)) {
+      console.error('[Verify Cashfree Session] Invalid webhook signature');
+      return res.status(401).json({ success: false, message: 'Invalid webhook signature' });
+    }
+  } else if (clientSecret) {
+    // Signature header missing but we have secret configured - reject
+    console.error('[Verify Cashfree Session] Missing webhook signature header');
+    return res.status(401).json({ success: false, message: 'Missing webhook signature' });
   }
 
   try {
@@ -55,14 +80,14 @@ export default async function handler(req: any, res: any) {
       const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_Mt6ZI4t0oJrto5x1uu6RvQ_GhTnZOK-';
 
       const supabase = createClient(supabaseUrl, supabaseKey);
-
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from('gyms')
         .update({
           subscription_status: 'active',
           subscription_plan: plan_name
         })
-        .eq('id', gym_id);
+        .eq('id', gym_id)
+        .select();
 
       if (updateError) {
         console.error('Failed to update gym subscription in DB:', updateError);
@@ -72,6 +97,20 @@ export default async function handler(req: any, res: any) {
           subscription_status: 'ACTIVE'
         });
       }
+
+      if (!updateData || updateData.length === 0) {
+        console.error(
+          'Gym subscription update matched 0 rows (likely RLS blocked it) for gym_id:',
+          gym_id,
+        );
+        return res.status(500).json({
+          success: false,
+          message: 'Mandate authorized at Cashfree, but no matching gym row was updated (check RLS policy or service role key).',
+          subscription_status: 'ACTIVE'
+        });
+      }
+
+      console.log('Gym subscription successfully updated:', updateData);
 
       return res.status(200).json({
         success: true,

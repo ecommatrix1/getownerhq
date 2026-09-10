@@ -1,9 +1,24 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import * as Sentry from "@sentry/react"
+import { registerSW } from 'virtual:pwa-register'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import './index.css'
+
+// PWA Service Worker registration
+if ('serviceWorker' in navigator) {
+  registerSW({
+    onNeedRefresh() {
+      if (confirm('New version available. Reload?')) {
+        window.location.reload();
+      }
+    },
+    onOfflineReady() {
+      console.log('App ready for offline use');
+    }
+  });
+}
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   try {

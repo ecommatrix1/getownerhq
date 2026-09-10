@@ -615,7 +615,7 @@ const TONE_STYLES: Record<string, { iconWrap: string; iconColor: string; ringCla
   warning: { iconWrap: 'bg-amber-50 dark:bg-amber-500/15',   iconColor: 'text-amber-600 dark:text-amber-400',   ringClass: 'ring-amber-500/50' },
   danger:  { iconWrap: 'bg-rose-50 dark:bg-rose-500/15',     iconColor: 'text-rose-600 dark:text-rose-400',     ringClass: 'ring-rose-500/50' },
   purple:  { iconWrap: 'bg-purple-500/10 dark:bg-semantic-purple-dark/15', iconColor: 'text-semantic-purple dark:text-semantic-purple-dark', ringClass: 'ring-semantic-purple/50' },
-  muted:   { iconWrap: 'bg-slate-100 dark:bg-slate-700/60',  iconColor: 'text-slate-600 dark:text-slate-300',   ringClass: 'ring-slate-400/50' },
+  muted:   { iconWrap: 'bg-slate-100 dark:bg-zinc-800',  iconColor: 'text-slate-600 dark:text-slate-300',   ringClass: 'ring-zinc-600' },
 };
 
 const MetricCard = ({ label, value, icon: Icon, tone = 'brand', onClick, active, subtitle }: any) => {
@@ -623,7 +623,7 @@ const MetricCard = ({ label, value, icon: Icon, tone = 'brand', onClick, active,
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden text-left p-4 rounded-2xl border bg-white dark:bg-surface-card-dark border-slate-200/70 dark:border-slate-800 shadow-sm transition-all duration-300 ease-spring active:scale-[0.98] hover:-translate-y-1 hover:shadow-card-hover hover:border-brand-300/60 dark:hover:border-brand-500/40 ${
+      className={`group relative overflow-hidden text-left p-4 rounded-2xl border bg-white dark:bg-[#121215] border-slate-300 dark:border-zinc-800 shadow-sm transition-all duration-300 ease-spring active:scale-[0.98] hover:-translate-y-1 hover:shadow-card-hover hover:border-brand-300/60 dark:hover:border-brand-500/40 ${
         active ? `ring-2 ring-offset-2 ring-offset-surface dark:ring-offset-surface-dark ${t.ringClass}` : ''
       }`}
     >

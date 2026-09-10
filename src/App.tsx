@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import { getSeoForPath, applySeo } from './utils/seo';
 import { MarketingPage } from './pages/MarketingPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { LoginPage } from './pages/LoginPage';
@@ -10,6 +11,7 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { RefundPage } from './pages/RefundPage';
 import { AboutPage } from './pages/AboutPage';
 import { ComparisonPage } from './pages/ComparisonPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { DashboardLayout } from './components/DashboardLayout';
 import { DashboardProvider } from './components/DashboardContext';
 import { ThemeProvider } from './components/ThemeContext';
@@ -87,22 +89,8 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    // Dynamically update Canonical URL per route
-    let canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.rel = 'canonical';
-      document.head.appendChild(canonicalLink);
-    }
-    const cleanPath = currentPath === '/' ? '' : currentPath;
-    const fullCanonicalUrl = `https://www.getownerhq.in${cleanPath}`;
-    canonicalLink.href = fullCanonicalUrl;
-
-    const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
-    if (ogUrl) ogUrl.content = fullCanonicalUrl;
-
-    const twitterUrl = document.querySelector<HTMLMetaElement>('meta[property="twitter:url"]');
-    if (twitterUrl) twitterUrl.content = fullCanonicalUrl;
+    const seoConfig = getSeoForPath(currentPath);
+    applySeo(seoConfig, currentPath);
   }, [currentPath]);
 
   const navigate = (path: string) => {
@@ -182,6 +170,9 @@ export function App() {
       dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
     } else if (cleanPath === '/dashboard/billing' || cleanPath === '/billing') {
       dashboardContent = <BillingPage />;
+    } else {
+      // 404 - Unknown route
+      return <NotFoundPage onNavigate={navigate} />;
     }
 
     return (

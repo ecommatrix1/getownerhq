@@ -32,10 +32,23 @@
           "value": "max-age=31536000; includeSubDomains"
         }
       ]
+    },
+    {
+      "source": "/(sitemap.xml|robots.txt|llms.txt|manifest.webmanifest|og-image.svg|sw.js|workbox-.*.js)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ],
 
   "rewrites": [
+    {
+      "source": "/(sitemap.xml|robots.txt|llms.txt|manifest.webmanifest|og-image.svg|sw.js|workbox-.*.js)",
+      "destination": "/$1"
+    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"

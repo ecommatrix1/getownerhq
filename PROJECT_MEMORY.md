@@ -74,3 +74,65 @@ content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline' '
   - Aliased to `https://www.getownerhq.in` at 14:51:15 GMT.
   - Live Edge Response verified: `Status: 200`, `x-vercel-cache: MISS`, `age: 0`, `X-Frame-Options: SAMEORIGIN`.
   - Automatic Plan Creation Fallback active for `Plan does not exist` on Cashfree Production.
+
+---
+
+## 7. Official WhatsApp Cloud API Engine (Multi-Tenant) — State & Resumption Log
+
+### Current Status as of Sept 11, 2026:
+- **Database**: Migration [`supabase/migrations/0008_whatsapp_engine.sql`](file:///c:/Users/ASUS/Downloads/antigravity/supabase/migrations/0008_whatsapp_engine.sql) is **EXECUTED & LIVE** in Supabase production.
+  - Tables active: `whatsapp_accounts`, `whatsapp_events`, `whatsapp_messages`, `automation_jobs`.
+  - RPC function active: `claim_whatsapp_events_batch(batch_size, worker_id, lease_duration_seconds)`.
+  - Row Level Security (RLS) active on all 4 tables via `public.get_auth_gym_id()`.
+- **Codebase**: Fully verified, committed (`7f71724`), and pushed to GitHub `origin main`.
+- **Automated Verification**:
+  - `npm test`: **ALL 24 automated unit & chaos tests passing** (AES-256-GCM, HMAC state, Webhook signature, Fencing tokens, pre-flight claim, cross-tenant isolation).
+  - `npm run build`: **0 compilation errors**; Vite production packaging complete.
+- **Implemented Architecture**:
+  - `api/utils/encryption.ts`: Enterprise AES-256-GCM with random 12-byte IV, 16-byte Auth Tag, fail-closed on missing secret in production.
+  - `api/utils/meta.ts`: Centralized Meta Graph API configuration (`META_GRAPH_VERSION = 'v21.0'`).
+  - `api/whatsapp-connect.ts`: Secure OAuth initiation with Supabase JWT bearer session verification, gym ownership validation, and HMAC state.
+  - `api/whatsapp-callback.ts`: Code exchange for ~60-day Long-Lived User Token, WABA auto-subscription (`/subscribed_apps`), and AES-256-GCM encrypted persistence.
+  - `api/whatsapp-webhook.ts`: Zero-loss webhook receiver with HMAC signature verification, multi-tenant phone resolution, deep unrolling, and strict HTTP 500 on DB failure.
+  - `api/whatsapp-worker.ts`: Atomic queue processor with 60-second dynamic lease and Optimistic Fencing Token validation (`locked_by` + `lease_until`).
+  - `api/whatsapp-reminders.ts`: Scheduled renewal reminder dispatcher with Pre-Flight Claim Pattern, E.164 phone normalization, dual-write to legacy `reminder_logs`, and ambiguous network timeout classification.
+  - `src/pages/WhatsAppTemplates.tsx`: Official WhatsApp status card with 1-click connect/reconnect; 100% preservation of manual `wa.me` links.
+  - `vercel.json`: Added cron schedules (`*/5 * * * *` for worker, `0 4 * * *` for reminders).
+
+---
+
+### Exact Resumption Point for Tomorrow:
+The user is currently on the browser screen:
+**`Create a Meta for Developers account` ➔ Step: `About you`**
+
+**Step-by-step resumption checklist:**
+1. **Complete Developer Registration**:
+   - In the browser tab, select **Developer** or **Owner/founder** and click **Complete Registration**.
+2. **Create Meta App**:
+   - Go to [developers.facebook.com/apps](https://developers.facebook.com/apps) ➔ Click **Create App**.
+   - Type: **Other** ➔ **Business** ➔ Name: `OwnerHQ`.
+3. **Copy Credentials**:
+   - Navigate to **App settings ➔ Basic**:
+     - Copy **App ID** (`META_APP_ID`).
+     - Click **Show** to copy **App secret** (`META_APP_SECRET`).
+4. **Configure WhatsApp Webhook**:
+   - In left sidebar: **WhatsApp ➔ Configuration**.
+   - Under **Webhook**, click **Edit**:
+     - **Callback URL**: `https://www.getownerhq.in/api/whatsapp-webhook`
+     - **Verify token**: (e.g. `ownerhq_whatsapp_webhook_2026`)
+     - Click **Verify and Save**.
+   - Under **Webhook fields**, click **Manage** ➔ Subscribe to **`messages`**.
+5. **Set Vercel Environment Variables**:
+   - In Vercel Project Settings ➔ Environment Variables:
+     - `ENCRYPTION_SECRET`: (Any 32-character random string for AES-256-GCM)
+     - `META_APP_ID`: (From Meta App Basic settings)
+     - `META_APP_SECRET`: (From Meta App Basic settings)
+     - `META_WEBHOOK_VERIFY_TOKEN`: (Matches the token entered in Meta webhook configuration)
+     - `CRON_SECRET`: (Secret string to protect scheduled cron endpoints)
+     - `META_GRAPH_VERSION`: `v21.0`
+   - In Vercel ➔ Deployments, click **Redeploy** on the latest deployment.
+6. **Canary Verification (Pilot Gym)**:
+   - Navigate to [getownerhq.in/#/dashboard/whatsapp](https://www.getownerhq.in/#/dashboard/whatsapp).
+   - Click **Connect Official WhatsApp** and complete the authorization dialog.
+   - Confirm connection card shows green "Connected" status with verified phone number.
+

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, ExternalLink, Info, Edit3, Save, Check, Loader2 } from 'lucide-react';
+import { MessageSquare, ExternalLink, Info, Edit3, Save, Check, Loader2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { api, DEFAULT_TEMPLATES } from '../lib/api';
-import { WhatsAppTemplate, Gym } from '../types';
+import { supabase } from '../lib/supabase';
+import { WhatsAppTemplate, Gym, WhatsAppAccount } from '../types';
 
 export const WhatsAppTemplatesPage: React.FC = () => {
   const [gym, setGym] = useState<Gym | null>(null);
@@ -10,15 +11,72 @@ export const WhatsAppTemplatesPage: React.FC = () => {
   const [editText, setEditText] = useState<string>('');
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [waAccount, setWaAccount] = useState<WhatsAppAccount | null>(null);
+  const [waNotice, setWaNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     const fetchGym = async () => {
       const currentGym = await api.getCurrentGym();
-      if (currentGym) setGym(currentGym);
+      if (currentGym) {
+        setGym(currentGym);
+        // Check if gym has official WhatsApp Cloud API connected
+        const { data: waData } = await supabase
+          .from('whatsapp_accounts')
+          .select('*')
+          .eq('gym_id', currentGym.id)
+          .eq('account_status', 'active')
+          .maybeSingle();
+
+        if (waData) {
+          setWaAccount(waData as WhatsAppAccount);
+        }
+      }
       setLoading(false);
     };
+
     fetchGym();
+
+    // Check URL parameters for OAuth return notifications
+    const searchParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
+    if (searchParams.get('connected') === 'true') {
+      const phone = searchParams.get('phone');
+      setWaNotice({
+        type: 'success',
+        message: `Official WhatsApp Business Account successfully connected! ${phone ? `(${phone})` : ''}`,
+      });
+    } else if (searchParams.get('error')) {
+      setWaNotice({
+        type: 'error',
+        message: `WhatsApp connection failed: ${decodeURIComponent(searchParams.get('error') || '')}`,
+      });
+    }
   }, []);
+
+  const handleConnectWhatsApp = async () => {
+    if (!gym) return;
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    if (!token) {
+      setWaNotice({ type: 'error', message: 'Please log in to connect your WhatsApp account.' });
+      return;
+    }
+    try {
+      const res = await fetch(`/api/whatsapp-connect?gym_id=${gym.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (data.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        setWaNotice({ type: 'error', message: data.message || 'Unable to initiate WhatsApp connection' });
+      }
+    } catch (err: any) {
+      setWaNotice({ type: 'error', message: err.message || 'Connection request failed' });
+    }
+  };
 
   const handleEdit = (tpl: WhatsAppTemplate) => {
     setEditingId(tpl.id);
@@ -75,11 +133,96 @@ export const WhatsAppTemplatesPage: React.FC = () => {
         </p>
       </div>
 
+      {/* OAuth Notification Alert */}
+      {waNotice && (
+        <div
+          className={`p-4 rounded-2xl flex items-center justify-between shadow-sm border ${
+            waNotice.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              : 'bg-rose-50 border-rose-200 text-rose-900'
+          }`}
+        >
+          <div className="flex items-center gap-2.5 font-bold text-sm">
+            {waNotice.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+            )}
+            <span>{waNotice.message}</span>
+          </div>
+          <button
+            onClick={() => setWaNotice(null)}
+            className="text-xs font-extrabold uppercase tracking-wider text-slate-500 hover:text-slate-900"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Official WhatsApp Cloud API (Meta Embedded Signup) Card */}
+      <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <div
+            className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold flex-shrink-0 ${
+              waAccount
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-brand-50 text-brand-600 border border-brand-200'
+            }`}
+          >
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-extrabold text-slate-900 text-base">Official WhatsApp Cloud API</h3>
+              {waAccount ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Connected
+                </span>
+              ) : (
+                <span className="text-[11px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                  Not Connected
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
+              {waAccount ? (
+                <>
+                  Active for <strong>{waAccount.verified_name || gym.name}</strong> ({waAccount.display_phone_number || 'Official WABA'}). Automated 3-day expiry reminders will dispatch directly from your official number.
+                </>
+              ) : (
+                <>
+                  Connect your Official Meta WhatsApp Business Account via 1-Click Embedded Signup to enable automated background expiry reminders and delivery receipts.
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-start md:self-auto flex-shrink-0">
+          {waAccount ? (
+            <button
+              onClick={handleConnectWhatsApp}
+              className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs rounded-xl transition-colors"
+            >
+              Reconnect
+            </button>
+          ) : (
+            <button
+              onClick={handleConnectWhatsApp}
+              className="btn-brand !min-h-[40px] text-xs px-4 py-2 flex items-center gap-2 shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Connect Official WhatsApp
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Manual Sending Disclaimer */}
       <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-3 text-sm text-blue-900 shadow-sm">
         <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div>
-          <div className="font-bold mb-1">Manual Click-to-Send WhatsApp Flow</div>
+          <div className="font-bold mb-1">Manual Click-to-Send WhatsApp Flow (Always Available)</div>
           <p className="text-blue-800 leading-relaxed font-medium">
             Clicking any reminder button on your dashboard creates a pre-filled <code className="bg-white px-2 py-0.5 rounded font-mono border border-blue-200">wa.me</code> link. 
             <strong className="underline ml-1">Click to open WhatsApp and send manually.</strong> No automated spamming or bot configuration required.

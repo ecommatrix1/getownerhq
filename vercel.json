@@ -56,10 +56,6 @@
   ],
   "crons": [
     {
-      "path": "/api/whatsapp-worker",
-      "schedule": "*/5 * * * *"
-    },
-    {
       "path": "/api/whatsapp-reminders",
       "schedule": "0 4 * * *"
     }

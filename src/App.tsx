@@ -65,9 +65,13 @@ export function App() {
     } else {
       raw = window.location.pathname;
     }
-    if (!raw || raw === '/') return '/';
-    const clean = '/' + raw.replace(/^\/+/, '').replace(/\/+$/, '');
-    return clean;
+    let clean = '/' + raw.replace(/^\/+/, '').replace(/\/+$/, '');
+    // Strip any query string from route matching
+    const qIdx = clean.indexOf('?');
+    if (qIdx !== -1) {
+      clean = clean.substring(0, qIdx);
+    }
+    return clean || '/';
   };
 
   const [currentPath, setCurrentPath] = useState<string>(resolveCurrentRoute);

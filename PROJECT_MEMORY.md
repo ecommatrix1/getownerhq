@@ -131,8 +131,12 @@ The user is currently on the browser screen:
      - `CRON_SECRET`: (Secret string to protect scheduled cron endpoints)
      - `META_GRAPH_VERSION`: `v21.0`
    - In Vercel ➔ Deployments, click **Redeploy** on the latest deployment.
-6. **Canary Verification (Pilot Gym)**:
-   - Navigate to [getownerhq.in/#/dashboard/whatsapp](https://www.getownerhq.in/#/dashboard/whatsapp).
-   - Click **Connect Official WhatsApp** and complete the authorization dialog.
-   - Confirm connection card shows green "Connected" status with verified phone number.
-
+### Verification & Production Canary (Sept 12, 2026):
+- **Live Deployment**: `https://www.getownerhq.in` on Vercel (`dpl_4JmKZzcZPEPPeseAVZDq3guQGhrn`).
+- **Webhook Handshake**: Verified live with Meta Graph API (`hub.mode=subscribe`, `hub.verify_token`). Subscribed to `messages`, `message_template_status_update`, `phone_number_quality_update`.
+- **Canary Connection (Pilot Gym: NAWAAB89 GYM)**:
+  - Meta Embedded OAuth completed successfully.
+  - Long-lived token acquired and encrypted via AES-256-GCM in Supabase table `whatsapp_accounts`.
+  - WABA auto-subscribed to webhooks (`/subscribed_apps`).
+  - Status displayed in OwnerHQ Dashboard: **Connected (Active)**.
+  - Manual `wa.me` fallback links completely intact and unaffected.

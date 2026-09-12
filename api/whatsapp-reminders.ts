@@ -1,7 +1,39 @@
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
-import { decryptSecret } from './utils/encryption';
-import { META_GRAPH_BASE } from './utils/meta';
+
+const META_GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v21.0';
+const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+
+function getEncryptionKey(): Buffer {
+  const secret = process.env.ENCRYPTION_SECRET || process.env.META_APP_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Critical Security Error: ENCRYPTION_SECRET environment variable is missing in production.');
+    }
+    return crypto.createHash('sha256').update('ownerhq-local-dev-secret-do-not-use-in-prod').digest();
+  }
+  return crypto.createHash('sha256').update(secret).digest();
+}
+
+function decryptSecret(ciphertext: string): string {
+  if (!ciphertext) return '';
+  const parts = ciphertext.split(':');
+  if (parts.length !== 3) return ciphertext;
+  try {
+    const [ivHex, encryptedHex, authTagHex] = parts;
+    const key = getEncryptionKey();
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+    let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (err) {
+    console.error('Failed to decrypt secret:', err);
+    return '';
+  }
+}
 
 /**
  * Format local date as YYYY-MM-DD with day offset

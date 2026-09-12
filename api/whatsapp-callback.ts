@@ -1,7 +1,30 @@
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
-import { encryptSecret } from './utils/encryption';
-import { META_GRAPH_BASE } from './utils/meta';
+
+const META_GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v21.0';
+const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+
+function getEncryptionKey(): Buffer {
+  const secret = process.env.ENCRYPTION_SECRET || process.env.META_APP_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Critical Security Error: ENCRYPTION_SECRET environment variable is missing in production.');
+    }
+    return crypto.createHash('sha256').update('ownerhq-local-dev-secret-do-not-use-in-prod').digest();
+  }
+  return crypto.createHash('sha256').update(secret).digest();
+}
+
+function encryptSecret(plaintext: string): string {
+  if (!plaintext) return '';
+  const key = getEncryptionKey();
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  let encrypted = cipher.update(plaintext, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const authTag = cipher.getAuthTag().toString('hex');
+  return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {

@@ -1,6 +1,9 @@
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
-import { META_OAUTH_DIALOG_BASE, REQUIRED_WHATSAPP_SCOPES } from './utils/meta';
+
+const META_GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v21.0';
+const META_OAUTH_DIALOG_BASE = `https://www.facebook.com/${META_GRAPH_VERSION}/dialog/oauth`;
+const REQUIRED_WHATSAPP_SCOPES = 'whatsapp_business_management,whatsapp_business_messaging';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'GET' && req.method !== 'POST') {

@@ -151,7 +151,9 @@ export function App() {
     const cleanPath = currentPath.toLowerCase();
     let dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
 
-    if (
+    if (cleanPath === '/dashboard' || cleanPath === '/dashboard/' || cleanPath === '/app') {
+      dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
+    } else if (
       cleanPath === '/dashboard/payments' ||
       cleanPath === '/payments' ||
       cleanPath === '/payment' ||

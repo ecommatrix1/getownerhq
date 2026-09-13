@@ -211,14 +211,36 @@ export default async function handler(req: any, res: any) {
     // 8. Encrypt Meta Access Token before storing (AES-256-GCM)
     const encryptedAccessToken = encryptSecret(finalToken);
 
-    // 9. Upsert credentials into Supabase (whatsapp_accounts)
-    const { error: upsertErr } = await supabase
+    // 9. Save credentials into Supabase (whatsapp_accounts)
+    // Guarantee uniqueness: generate gym-specific pending ID if Meta didn't return phone_number_id yet
+    const finalPhoneId = phoneNumberId || `pending_${gym_id}`;
+
+    // Clean up any stale records holding this phone_number_id under another gym
+    if (phoneNumberId) {
+      await supabase
+        .from('whatsapp_accounts')
+        .delete()
+        .eq('phone_number_id', phoneNumberId)
+        .neq('gym_id', gym_id);
+    }
+    // Clean up legacy static 'phone_pending' rows that cause unique collisions
+    await supabase
       .from('whatsapp_accounts')
-      .upsert(
-        {
-          gym_id,
-          waba_id: wabaId || 'waba_pending',
-          phone_number_id: phoneNumberId || 'phone_pending',
+      .delete()
+      .eq('phone_number_id', 'phone_pending');
+
+    const { data: existingAccount } = await supabase
+      .from('whatsapp_accounts')
+      .select('id')
+      .eq('gym_id', gym_id)
+      .maybeSingle();
+
+    if (existingAccount) {
+      const { error: updateErr } = await supabase
+        .from('whatsapp_accounts')
+        .update({
+          waba_id: wabaId || `pending_${gym_id}`,
+          phone_number_id: finalPhoneId,
           display_phone_number: displayPhoneNumber || null,
           verified_name: verifiedName || null,
           meta_access_token: encryptedAccessToken,
@@ -226,13 +248,33 @@ export default async function handler(req: any, res: any) {
           token_expires_at: tokenExpiresAt,
           account_status: 'active',
           updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'gym_id' }
-      );
+        })
+        .eq('gym_id', gym_id);
 
-    if (upsertErr) {
-      console.error('Failed to save whatsapp_account to Supabase:', upsertErr);
-      throw new Error(`Database error: ${upsertErr.message}`);
+      if (updateErr) {
+        console.error('Failed to update whatsapp_account:', updateErr);
+        throw new Error(`Database error: ${updateErr.message}`);
+      }
+    } else {
+      const { error: insertErr } = await supabase
+        .from('whatsapp_accounts')
+        .insert({
+          gym_id,
+          waba_id: wabaId || `pending_${gym_id}`,
+          phone_number_id: finalPhoneId,
+          display_phone_number: displayPhoneNumber || null,
+          verified_name: verifiedName || null,
+          meta_access_token: encryptedAccessToken,
+          token_type: 'user_long_lived',
+          token_expires_at: tokenExpiresAt,
+          account_status: 'active',
+          updated_at: new Date().toISOString(),
+        });
+
+      if (insertErr) {
+        console.error('Failed to insert whatsapp_account:', insertErr);
+        throw new Error(`Database error: ${insertErr.message}`);
+      }
     }
 
     // Redirect gym owner to dashboard with success query param

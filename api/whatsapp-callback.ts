@@ -108,7 +108,7 @@ export default async function handler(req: any, res: any) {
     const expiresInSeconds = longLivedData.expires_in || tokenData.expires_in || 5184000;
     const tokenExpiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString();
 
-    // 4. Debug token to discover WABA ID
+    // 4. Debug token & query endpoints to discover WABA ID
     const debugUrl = `${META_GRAPH_BASE}/debug_token?input_token=${finalToken}&access_token=${appId}|${appSecret}`;
     const debugRes = await fetch(debugUrl);
     const debugData = await debugRes.json();
@@ -122,12 +122,40 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // Fallback: If not in granular scopes, query businesses/owned WABAs
+    // Fallback 1: Query businesses and their client_whatsapp_business_accounts
     if (!wabaId) {
-      const meUrl = `${META_GRAPH_BASE}/me?fields=id,name&access_token=${finalToken}`;
-      const meRes = await fetch(meUrl);
-      const meData = await meRes.json();
-      wabaId = meData.id || '';
+      try {
+        const bizUrl = `${META_GRAPH_BASE}/me/businesses?fields=id,name,client_whatsapp_business_accounts,owned_whatsapp_business_accounts&access_token=${finalToken}`;
+        const bizRes = await fetch(bizUrl);
+        const bizData = await bizRes.json();
+        const businesses = bizData?.data || [];
+        for (const b of businesses) {
+          const clientWabas = b.client_whatsapp_business_accounts?.data || [];
+          const ownedWabas = b.owned_whatsapp_business_accounts?.data || [];
+          const found = clientWabas[0] || ownedWabas[0];
+          if (found?.id) {
+            wabaId = found.id;
+            break;
+          }
+        }
+      } catch (bizErr) {
+        console.warn('Business WABA query fallback error:', bizErr);
+      }
+    }
+
+    // Fallback 2: Query /me/whatsapp_business_accounts
+    if (!wabaId) {
+      try {
+        const directWabaUrl = `${META_GRAPH_BASE}/me?fields=id,name,whatsapp_business_accounts&access_token=${finalToken}`;
+        const directRes = await fetch(directWabaUrl);
+        const directData = await directRes.json();
+        const wabas = directData?.whatsapp_business_accounts?.data || [];
+        if (wabas.length > 0) {
+          wabaId = wabas[0].id;
+        }
+      } catch (directErr) {
+        console.warn('Direct WABA query fallback error:', directErr);
+      }
     }
 
     // 5. Discover phone numbers associated with this WABA
@@ -136,15 +164,19 @@ export default async function handler(req: any, res: any) {
     let verifiedName = '';
 
     if (wabaId) {
-      const phoneUrl = `${META_GRAPH_BASE}/${wabaId}/phone_numbers?access_token=${finalToken}`;
-      const phoneRes = await fetch(phoneUrl);
-      const phoneData = await phoneRes.json();
+      try {
+        const phoneUrl = `${META_GRAPH_BASE}/${wabaId}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating&access_token=${finalToken}`;
+        const phoneRes = await fetch(phoneUrl);
+        const phoneData = await phoneRes.json();
 
-      if (phoneData?.data && phoneData.data.length > 0) {
-        const primaryPhone = phoneData.data[0];
-        phoneNumberId = primaryPhone.id;
-        displayPhoneNumber = primaryPhone.display_phone_number;
-        verifiedName = primaryPhone.verified_name;
+        if (phoneData?.data && phoneData.data.length > 0) {
+          const primaryPhone = phoneData.data[0];
+          phoneNumberId = primaryPhone.id;
+          displayPhoneNumber = primaryPhone.display_phone_number;
+          verifiedName = primaryPhone.verified_name;
+        }
+      } catch (phoneErr) {
+        console.warn('Phone discovery error:', phoneErr);
       }
 
       // 6. Automatically subscribe OwnerHQ's Webhook to the gym owner's WABA

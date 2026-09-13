@@ -132,6 +132,12 @@ export function App() {
       return <ResetPasswordPage onNavigate={navigate} />;
     }
 
+    // Catch-all for API callback if reached via client-side routing
+    if (currentPath.startsWith('/api/whatsapp-callback')) {
+      window.location.replace('/#/dashboard/whatsapp');
+      return null;
+    }
+
     // Legal & Policy Routes
     if (currentPath === '/about') {
       return <AboutPage onNavigate={navigate} />;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, ExternalLink, Info, Edit3, Save, Check, Loader2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { MessageSquare, ExternalLink, Info, Edit3, Save, Check, Loader2, CheckCircle2, AlertCircle, Sparkles, Send, Phone } from 'lucide-react';
 import { api, DEFAULT_TEMPLATES } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { WhatsAppTemplate, Gym, WhatsAppAccount } from '../types';
@@ -13,6 +13,9 @@ export const WhatsAppTemplatesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [waAccount, setWaAccount] = useState<WhatsAppAccount | null>(null);
   const [waNotice, setWaNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [testPhone, setTestPhone] = useState<string>('8876640141');
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false);
 
   useEffect(() => {
     const fetchGym = async () => {
@@ -88,6 +91,52 @@ export const WhatsAppTemplatesPage: React.FC = () => {
     setEditingId(null);
     setSavedNotice('Template updated locally for this session!');
     setTimeout(() => setSavedNotice(null), 3000);
+  };
+
+  const handleTestSendOfficial = async () => {
+    if (!gym || !testPhone) return;
+    setIsSendingTest(true);
+    setWaNotice(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        setWaNotice({ type: 'error', message: 'Authentication required. Please re-login.' });
+        setIsSendingTest(false);
+        return;
+      }
+
+      const res = await fetch('/api/whatsapp-test-send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gym_id: gym.id,
+          recipient_phone: testPhone,
+          message_text: `🏋️ Test Message from ${gym.name}!\n\nThis confirms your OwnerHQ Official WhatsApp Cloud API connection is active and operational. Messages will dispatch directly from your official number!`,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setWaNotice({
+          type: 'success',
+          message: `Official WhatsApp test message sent successfully to ${data.recipient}! (WAMID: ${data.wamid || 'verified'})`,
+        });
+        setShowTestModal(false);
+      } else {
+        setWaNotice({
+          type: 'error',
+          message: `Test send failed: ${data.message || 'Unknown error'}`,
+        });
+      }
+    } catch (err: any) {
+      setWaNotice({ type: 'error', message: `Test dispatch error: ${err.message}` });
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   const sampleMember = {
@@ -200,12 +249,21 @@ export const WhatsAppTemplatesPage: React.FC = () => {
 
         <div className="flex items-center gap-2 self-start md:self-auto flex-shrink-0">
           {waAccount ? (
-            <button
-              onClick={handleConnectWhatsApp}
-              className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs rounded-xl transition-colors"
-            >
-              Reconnect
-            </button>
+            <>
+              <button
+                onClick={() => setShowTestModal(true)}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-sm"
+              >
+                <Send className="w-3.5 h-3.5" />
+                Send Test Message
+              </button>
+              <button
+                onClick={handleConnectWhatsApp}
+                className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs rounded-xl transition-colors"
+              >
+                Reconnect
+              </button>
+            </>
           ) : (
             <button
               onClick={handleConnectWhatsApp}
@@ -328,6 +386,90 @@ export const WhatsAppTemplatesPage: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Official WhatsApp Live Test Dispatch Modal */}
+      {showTestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <Send className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base">Test Official Dispatch</h3>
+                  <p className="text-xs text-slate-500 font-medium">Send a live message via Meta Cloud API</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowTestModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Recipient Mobile Number
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    value={testPhone}
+                    onChange={(e) => setTestPhone(e.target.value.replace(/\D/g, '').slice(-10))}
+                    placeholder="9876543210"
+                    maxLength={10}
+                    className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1.5 font-medium">
+                  Dispatches directly from your official WhatsApp Business number: <strong>{waAccount?.display_phone_number || 'Connected WABA'}</strong>.
+                </p>
+              </div>
+
+              <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 text-xs text-emerald-900 font-medium leading-relaxed">
+                🏋️ <strong>Sample Test Content:</strong>
+                <div className="mt-1 text-slate-700 font-sans italic bg-white p-2.5 rounded-lg border border-emerald-100">
+                  "Hello! This confirms your OwnerHQ Official WhatsApp Cloud API connection is active and operational for {gym.name}!"
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTestModal(false)}
+                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleTestSendOfficial}
+                  disabled={isSendingTest || testPhone.length < 10}
+                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm"
+                >
+                  {isSendingTest ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      Send to +91 {testPhone}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

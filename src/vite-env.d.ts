@@ -11,3 +11,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare module '@sentry/react' {
+  export function init(options?: any): void;
+  export function captureException(exception: any, captureContext?: any): string;
+  export function captureMessage(message: string, captureContext?: any): string;
+  export function browserTracingIntegration(options?: any): any;
+  export function replayIntegration(options?: any): any;
+}

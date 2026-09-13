@@ -8,16 +8,23 @@ import './index.css'
 
 // PWA Service Worker registration
 if ('serviceWorker' in navigator) {
-  registerSW({
-    onNeedRefresh() {
-      if (confirm('New version available. Reload?')) {
-        window.location.reload();
+  if (window.location.pathname.startsWith('/api/')) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      for (const reg of registrations) {
+        reg.unregister();
       }
-    },
-    onOfflineReady() {
-      console.log('App ready for offline use');
-    }
-  });
+    });
+  } else {
+    registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        window.location.reload();
+      },
+      onOfflineReady() {
+        console.log('App ready for offline use');
+      }
+    });
+  }
 }
 
 if (import.meta.env.VITE_SENTRY_DSN) {

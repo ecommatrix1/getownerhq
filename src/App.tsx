@@ -132,10 +132,27 @@ export function App() {
       return <ResetPasswordPage onNavigate={navigate} />;
     }
 
-    // Catch-all for API callback if reached via client-side routing
-    if (currentPath.startsWith('/api/whatsapp-callback')) {
-      window.location.replace('/#/dashboard/whatsapp');
-      return null;
+    // Client fallback if an /api/ endpoint (such as Meta OAuth redirect) was caught by client navigation
+    if (window.location.pathname.startsWith('/api/')) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (const reg of registrations) {
+            reg.unregister();
+          }
+          window.location.reload();
+        });
+      } else {
+        window.location.reload();
+      }
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center p-8 bg-white rounded-2xl shadow-lg border border-gray-100 max-w-md mx-4">
+            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto mb-4" />
+            <h2 className="text-lg font-bold text-gray-900">Connecting WhatsApp Cloud API...</h2>
+            <p className="text-sm text-gray-500 mt-2">Completing Meta verification. Handing over to serverless function...</p>
+          </div>
+        </div>
+      );
     }
 
     // Legal & Policy Routes

@@ -1,7 +1,7 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
-const META_GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v21.0';
+const META_GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v26.0';
 const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
 
 function getEncryptionKey(): Buffer {
@@ -128,29 +128,56 @@ export default async function handler(req: any, res: any) {
       message_text ||
       `Hello! This is an official test message from ${gymData.name} via OwnerHQ WhatsApp Cloud API. Your connection is live and verified!`;
 
-    // 4. Send official WhatsApp text message via Meta Graph API
+    // 4. Send official WhatsApp template message via Meta Graph API
+    // Note: Meta requires a pre-approved template for business-initiated messages outside the 24h window.
+    // 'hello_world' is Meta's built-in default template available across all WhatsApp Business Accounts.
     const sendUrl = `${META_GRAPH_BASE}/${phoneNumberId}/messages`;
-    const payload = {
+    const templatePayload = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
       to: formattedRecipient,
-      type: 'text',
-      text: {
-        preview_url: false,
-        body: bodyText,
+      type: 'template',
+      template: {
+        name: 'hello_world',
+        language: { code: 'en_US' },
       },
     };
 
-    const metaRes = await fetch(sendUrl, {
+    let metaRes = await fetch(sendUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(templatePayload),
     });
 
-    const metaData = await metaRes.json();
+    let metaData = await metaRes.json();
+
+    // If hello_world template isn't available in en_US, retry with free-form text fallback
+    if (!metaRes.ok && metaData.error?.code === 100) {
+      const textPayload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: formattedRecipient,
+        type: 'text',
+        text: {
+          preview_url: false,
+          body: bodyText,
+        },
+      };
+
+      metaRes = await fetch(sendUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(textPayload),
+      });
+
+      metaData = await metaRes.json();
+    }
 
     if (!metaRes.ok || metaData.error) {
       console.warn('[WhatsApp Test Send] Meta dispatch error:', metaData.error);

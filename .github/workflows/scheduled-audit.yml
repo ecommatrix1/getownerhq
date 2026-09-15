@@ -24,7 +24,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run E2E Tests
-        run: npm test
+        run: npm run test:e2e
 
       - name: Create Issue on Failure
         if: failure()

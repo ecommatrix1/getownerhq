@@ -61,6 +61,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const isRouteActive = (itemPath: string) => {
     const clean = currentPath.toLowerCase();
     if (clean === itemPath.toLowerCase()) return true;
+    if (itemPath === '/dashboard/members') {
+      return clean === '/members' || clean === '/dashboard/members' || clean.startsWith('/dashboard/members');
+    }
     if (itemPath === '/dashboard/payments') {
       return ['/payments', '/payment', '/pmnt', '/dashboard/payment', '/dashboard/pmnt'].includes(clean);
     }

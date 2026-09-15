@@ -178,7 +178,15 @@ export function App() {
     const cleanPath = currentPath.toLowerCase();
     let dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
 
-    if (cleanPath === '/dashboard' || cleanPath === '/dashboard/' || cleanPath === '/app') {
+    if (
+      cleanPath === '/dashboard' ||
+      cleanPath === '/dashboard/' ||
+      cleanPath === '/app' ||
+      cleanPath === '/dashboard/members' ||
+      cleanPath === '/dashboard/members/' ||
+      cleanPath === '/members' ||
+      cleanPath === '/members/'
+    ) {
       dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
     } else if (
       cleanPath === '/dashboard/payments' ||
@@ -199,6 +207,9 @@ export function App() {
       dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
     } else if (cleanPath === '/dashboard/billing' || cleanPath === '/billing') {
       dashboardContent = <BillingPage />;
+    } else if (cleanPath.startsWith('/dashboard')) {
+      // Safe fallback for any unspecified dashboard routes
+      dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
     } else {
       // 404 - Unknown route
       return <NotFoundPage onNavigate={navigate} />;

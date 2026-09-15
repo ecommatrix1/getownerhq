@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "node test_suite.test.cjs",
+    "test": "node test_suite.test.cjs && playwright test",
     "test:e2e": "playwright test"
   },
   "dependencies": {

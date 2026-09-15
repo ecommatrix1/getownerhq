@@ -259,31 +259,40 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
       })()}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
-        <MetricCard label="Total Members"  value={stats.total}       icon={Users}        tone="brand"   onClick={() => setActiveFilter('all')}          active={activeFilter === 'all'} />
-        <MetricCard label="Active Members" value={stats.active}      icon={Users}        tone="success" onClick={() => setActiveFilter('active')}       active={activeFilter === 'active'} />
-        <MetricCard label="Expiring Soon"  value={stats.expiring}    icon={Watch}        tone="warning" onClick={() => setActiveFilter('expiring')}     active={activeFilter === 'expiring'} subtitle="Next 3 days" />
-        <MetricCard label="Expired"        value={stats.expired}     icon={Zap}          tone="danger"  onClick={() => setActiveFilter('expired')}      active={activeFilter === 'expired'} />
-        <MetricCard label="Pending Dues"   value={stats.pendingDues} icon={CreditCard}   tone="purple"  onClick={() => setActiveFilter('pending-dues')} active={activeFilter === 'pending-dues'} />
-        <MetricCard label="Lost Members"   value={stats.lost}        icon={ShieldAlert}  tone="muted"   onClick={() => setActiveFilter('lost')}         active={activeFilter === 'lost'} subtitle="> 90 days" />
-        <div className="col-span-2 md:col-span-1 relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-gradient-brand text-white p-4 shadow-glow-brand flex flex-col justify-between transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-glow-brand-lg">
-          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-white/15 blur-2xl pointer-events-none" aria-hidden />
-          <div className="relative flex items-center justify-between">
-            <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
-              <Activity className="w-4 h-4 text-white" />
+      {(() => {
+        const isMembersRoute = currentPath?.toLowerCase().includes('member');
+        return (
+          <>
+            <div className={`grid grid-cols-2 sm:grid-cols-3 ${isMembersRoute ? 'lg:grid-cols-6' : 'lg:grid-cols-7'} gap-4`}>
+              <MetricCard label="Total Members"  value={stats.total}       icon={Users}        tone="brand"   onClick={() => setActiveFilter('all')}          active={activeFilter === 'all'} />
+              <MetricCard label="Active Members" value={stats.active}      icon={Users}        tone="success" onClick={() => setActiveFilter('active')}       active={activeFilter === 'active'} />
+              <MetricCard label="Expiring Soon"  value={stats.expiring}    icon={Watch}        tone="warning" onClick={() => setActiveFilter('expiring')}     active={activeFilter === 'expiring'} subtitle="Next 3 days" />
+              <MetricCard label="Expired"        value={stats.expired}     icon={Zap}          tone="danger"  onClick={() => setActiveFilter('expired')}      active={activeFilter === 'expired'} />
+              <MetricCard label="Pending Dues"   value={stats.pendingDues} icon={CreditCard}   tone="purple"  onClick={() => setActiveFilter('pending-dues')} active={activeFilter === 'pending-dues'} />
+              <MetricCard label="Lost Members"   value={stats.lost}        icon={ShieldAlert}  tone="muted"   onClick={() => setActiveFilter('lost')}         active={activeFilter === 'lost'} subtitle="> 90 days" />
+              {!isMembersRoute && (
+                <div className="col-span-2 sm:col-span-1 relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-gradient-brand text-white p-4 shadow-glow-brand flex flex-col justify-between transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-glow-brand-lg">
+                  <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-white/15 blur-2xl pointer-events-none" aria-hidden />
+                  <div className="relative flex items-center justify-between">
+                    <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/70">Today</span>
+                  </div>
+                  <div className="relative">
+                    <div className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Revenue</div>
+                    <div className="font-mono font-extrabold text-xl mt-0.5 leading-none">₹{revenueToday.toLocaleString('en-IN')}</div>
+                    <div className="text-[10px] text-white/60 mt-1">Total collections</div>
+                  </div>
+                </div>
+              )}
             </div>
-            <span className="text-[9px] font-bold uppercase tracking-wider text-white/70">Today</span>
-          </div>
-          <div className="relative">
-            <div className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Revenue</div>
-            <div className="font-mono font-extrabold text-xl mt-0.5 leading-none">₹{revenueToday.toLocaleString('en-IN')}</div>
-            <div className="text-[10px] text-white/60 mt-1">Total collections</div>
-          </div>
-        </div>
-      </div>
 
-      {/* 12-Month Revenue Comparison & Growth Analytics */}
-      <RevenueAnalyticsChart payments={payments} />
+            {/* 12-Month Revenue Comparison & Growth Analytics (Only on Executive Dashboard Overview) */}
+            {!isMembersRoute && <RevenueAnalyticsChart payments={payments} />}
+          </>
+        );
+      })()}
 
       {/* Search & Sort */}
       <div className="card-premium p-3 sm:p-4 mb-4 flex flex-col sm:flex-row gap-3">

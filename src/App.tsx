@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { getSeoForPath, applySeo } from './utils/seo';
 import { MarketingPage } from './pages/MarketingPage';
@@ -18,43 +18,12 @@ import { ThemeProvider } from './components/ThemeContext';
 import { PrintableStandeeModal } from './components/PrintableStandeeModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Helper to auto-retry lazy loaded chunks if deployment chunk hash changed
-function lazyWithRetry<P = {}>(
-  componentImport: () => Promise<any>,
-  exportName?: string
-): React.LazyExoticComponent<React.ComponentType<P>> {
-  return React.lazy(async () => {
-    try {
-      const module = await componentImport();
-      const comp = exportName && module[exportName] ? module[exportName] : module.default || module;
-      return { default: comp };
-    } catch (error) {
-      console.error('Lazy chunk load failed:', error);
-      const pageHasBeenRefreshed = sessionStorage.getItem('page_refreshed_on_chunk_err');
-      if (!pageHasBeenRefreshed) {
-        sessionStorage.setItem('page_refreshed_on_chunk_err', 'true');
-        window.location.reload();
-        return new Promise(() => {});
-      }
-      throw error;
-    }
-  });
-}
-
-// Lazy load authenticated dashboard components with retry logic
-const DashboardOverview = lazyWithRetry<{ onNavigate: (path: string) => void; currentPath?: string }>(() => import('./pages/DashboardOverview'), 'DashboardOverview');
-const PaymentsLedger = lazyWithRetry(() => import('./pages/PaymentsLedger'), 'PaymentsLedger');
-const WhatsAppTemplatesPage = lazyWithRetry(() => import('./pages/WhatsAppTemplates'), 'WhatsAppTemplatesPage');
-const SettingsPage = lazyWithRetry<{ onOpenStandee: () => void }>(() => import('./pages/SettingsPage'), 'SettingsPage');
-const PlansPage = lazyWithRetry(() => import('./pages/PlansPage'), 'PlansPage');
-const BillingPage = lazyWithRetry(() => import('./pages/BillingPage'), 'BillingPage');
-
-// Fallback loader
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-[50vh]">
-    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-  </div>
-);
+import { DashboardOverview } from './pages/DashboardOverview';
+import { PaymentsLedger } from './pages/PaymentsLedger';
+import { WhatsAppTemplatesPage } from './pages/WhatsAppTemplates';
+import { SettingsPage } from './pages/SettingsPage';
+import { PlansPage } from './pages/PlansPage';
+import { BillingPage } from './pages/BillingPage';
 
 export function App() {
   const resolveCurrentRoute = () => {
@@ -223,9 +192,7 @@ export function App() {
           onOpenStandee={() => setIsStandeeModalOpen(true)}
         >
           <ErrorBoundary>
-            <Suspense fallback={<PageLoader />}>
-              {dashboardContent}
-            </Suspense>
+            {dashboardContent}
           </ErrorBoundary>
         </DashboardLayout>
       </DashboardProvider>

@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env.local
 .env
-
+.env*
+.vercel
 playwright-report/
 test-results/

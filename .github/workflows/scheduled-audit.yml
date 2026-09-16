@@ -1,0 +1,42 @@
+name: Scheduled Audit
+
+on:
+  schedule:
+    - cron: '30 0 */2 * *'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E Tests
+        env:
+          VITE_SUPABASE_URL: "http://localhost:54321"
+          VITE_SUPABASE_ANON_KEY: "dummy-key-for-tests"
+        run: npm test
+
+      - name: Create Issue on Failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Scheduled Audit Failed" \
+            --body "The scheduled E2E tests have failed. Please check the workflow run [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})." \
+            --label "jules"

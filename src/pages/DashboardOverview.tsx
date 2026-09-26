@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { 
   Users, Search, Filter, Phone, Activity, Zap, Watch, ShieldAlert,
   UserPlus, MoreVertical, Copy, Trash2, ChevronLeft, ChevronRight, MessageSquare, CreditCard, CheckCircle2, Edit
@@ -392,6 +392,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
                     setSelectedMemberForAddDue(member);
                     setIsAddDueModalOpen(true);
                   }}
+                  onEdit={() => {
+                    setSelectedMemberForEdit(member);
+                    setIsEditModalOpen(true);
+                  }}
                   onDelete={() => handleDeleteMember(member.id)}
                   totalRows={filteredAndSortedMembers.length}
                 />
@@ -662,9 +666,155 @@ const MetricCard = ({ label, value, icon: Icon, tone = 'brand', onClick, active,
   );
 };
 
-const MemberMobileCard = React.memo(({ index, member, plan, effStatus, daysLeftText, isReadOnly, waLink, onRenew, onPartialPayment, onAddDue, onDelete, totalRows }: any) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+interface MemberActionMenuProps {
+  member: any;
+  isReadOnly: boolean;
+  onRenew: () => void;
+  onAddDue: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  index: number;
+  totalRows: number;
+}
 
+const MemberActionMenu: React.FC<MemberActionMenuProps> = ({
+  member,
+  isReadOnly,
+  onRenew,
+  onAddDue,
+  onEdit,
+  onDelete,
+  index,
+  totalRows,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideClick);
+    };
+  }, [isOpen]);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(member.mobile);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+      setIsOpen(false);
+    }, 600);
+  };
+
+  const isNearBottom = totalRows > 1 && index > 1 && index >= totalRows - 1;
+
+  return (
+    <div className="relative inline-block text-left" ref={menuRef}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(prev => !prev);
+        }}
+        className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm focus:outline-none"
+        aria-label="Member options"
+        aria-expanded={isOpen}
+      >
+        <MoreVertical className="w-4 h-4" />
+      </button>
+
+      {isOpen && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className={`absolute right-0 ${
+            isNearBottom ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
+          } w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl p-1.5 z-[100] animate-fade-up divide-y divide-slate-100 dark:divide-slate-700/60`}
+        >
+          <div className="py-1">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+              <span>{copied ? 'Copied Number!' : 'Copy Number'}</span>
+            </button>
+          </div>
+
+          {!isReadOnly && (
+            <div className="py-1 space-y-0.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  onEdit();
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                <Edit className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                <span>Edit Details</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  onAddDue();
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-colors"
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Add Due</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  onRenew();
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-colors"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Renew Membership</span>
+              </button>
+            </div>
+          )}
+
+          {!isReadOnly && (
+            <div className="py-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  onDelete();
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Member</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MemberMobileCard = React.memo(({ index, member, plan, effStatus, daysLeftText, isReadOnly, waLink, onRenew, onPartialPayment, onAddDue, onEdit, onDelete, totalRows }: any) => {
   return (
     <div className="p-4 space-y-3 bg-white dark:bg-surface-card-dark transition-colors">
       {/* Top row: Avatar, Name, Mobile, Status Badge */}
@@ -768,54 +918,16 @@ const MemberMobileCard = React.memo(({ index, member, plan, effStatus, daysLeftT
             )
           )}
 
-          <div className="relative">
-            <button 
-              onClick={() => setMenuOpen(!menuOpen)}
-              onBlur={() => setTimeout(() => setMenuOpen(false), 200)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-            
-            {menuOpen && (
-              <div className={`absolute right-0 ${(totalRows > 1 && index > 1 && index >= totalRows - 1) ? 'bottom-full mb-1' : 'top-full mt-1'} w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-xl p-1 z-50`}>
-                <button 
-                  onClick={() => navigator.clipboard.writeText(member.mobile)} 
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg"
-                >
-                  <Copy className="w-4 h-4 text-slate-400 dark:text-slate-500" /> Copy No.
-                </button>
-                {!isReadOnly && (
-                  <>
-                    <button 
-                      onClick={() => {
-                        onAddDue();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg"
-                    >
-                      <CreditCard className="w-4 h-4" /> Add Due
-                    </button>
-                    <button 
-                      onClick={() => {
-                        onRenew();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg"
-                    >
-                      <UserPlus className="w-4 h-4" /> Renew
-                    </button>
-                    <button 
-                      onClick={onDelete} 
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" /> Delete
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+          <MemberActionMenu
+            member={member}
+            isReadOnly={isReadOnly}
+            onRenew={onRenew}
+            onAddDue={onAddDue}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            index={index}
+            totalRows={totalRows}
+          />
         </div>
       </div>
     </div>
@@ -823,8 +935,6 @@ const MemberMobileCard = React.memo(({ index, member, plan, effStatus, daysLeftT
 });
 
 const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftText, isReadOnly, waLink, onRenew, onPartialPayment, onAddDue, onEdit, onDelete, totalRows }: any) => {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <tr className="hover:bg-brand-50/40 dark:hover:bg-brand-500/5 transition-colors group">
       <td className="px-6 py-4 text-sm font-mono font-medium text-slate-400 dark:text-slate-500 [font-variant-numeric:tabular-nums]">{index}</td>
@@ -921,64 +1031,16 @@ const MemberTableRow = React.memo(({ index, member, plan, effStatus, daysLeftTex
             )
           )}
 
-          <div className="relative">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              onBlur={() => setTimeout(() => setMenuOpen(false), 200)}
-              className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-
-            {menuOpen && (
-              <div className={`absolute right-0 ${(totalRows > 1 && index > 1 && index >= totalRows - 1) ? 'bottom-full mb-1' : 'top-full mt-1'} w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-xl p-1 z-50 animate-fade-up`}>
-                <button
-                  onClick={() => navigator.clipboard.writeText(member.mobile)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <Copy className="w-4 h-4 text-slate-400 dark:text-slate-500" /> Copy Number
-                </button>
-                {!isReadOnly && (
-                  <>
-                    <button
-                      onClick={() => {
-                        onEdit();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                    >
-                      <Edit className="w-4 h-4 text-slate-500" /> Edit Details
-                    </button>
-                    <button
-                      onClick={() => {
-                        onAddDue();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-accent-600 dark:text-accent-400 hover:bg-accent-500/10 rounded-lg transition-colors"
-                    >
-                      <CreditCard className="w-4 h-4" /> Add Due
-                    </button>
-                    <button
-                      onClick={() => {
-                        onRenew();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/15 rounded-lg transition-colors"
-                    >
-                      <UserPlus className="w-4 h-4" /> Renew
-                    </button>
-                    <div className="my-1 border-t border-slate-100 dark:border-slate-700" />
-                    <button
-                      onClick={onDelete}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/15 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" /> Delete
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+          <MemberActionMenu
+            member={member}
+            isReadOnly={isReadOnly}
+            onRenew={onRenew}
+            onAddDue={onAddDue}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            index={index}
+            totalRows={totalRows}
+          />
         </div>
       </td>
     </tr>

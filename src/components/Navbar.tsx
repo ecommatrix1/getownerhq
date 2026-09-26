@@ -13,12 +13,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute }) => {
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
-    if (currentRoute !== '/') {
-      onNavigate('/');
-      setTimeout(() => {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+    if (currentRoute !== '/' && currentRoute !== '') {
+      onNavigate(`/#${id}`);
     } else {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: 'smooth' });

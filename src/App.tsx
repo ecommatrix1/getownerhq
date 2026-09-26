@@ -25,15 +25,35 @@ import { SettingsPage } from './pages/SettingsPage';
 import { PlansPage } from './pages/PlansPage';
 import { BillingPage } from './pages/BillingPage';
 
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+
 export function App() {
   const resolveCurrentRoute = () => {
     let raw = '';
     const hash = window.location.hash;
-    if (hash) {
-      raw = hash.replace(/^#+/, '');
+    const pathname = window.location.pathname;
+
+    // Check if hash represents a section anchor or route
+    if (hash && (hash === '#how-it-works' || hash === '#pricing' || hash === '#faq' || hash === '#contact')) {
+      raw = '/';
+    } else if (hash && hash.startsWith('#/')) {
+      const hashRoute = hash.replace(/^#+/, '');
+      if (
+        hashRoute === '/how-it-works' ||
+        hashRoute === '/pricing' ||
+        hashRoute === '/faq' ||
+        hashRoute === '/contact'
+      ) {
+        raw = '/';
+      } else {
+        raw = hashRoute;
+      }
     } else {
-      raw = window.location.pathname;
+      raw = pathname;
     }
+
     let clean = '/' + raw.replace(/^\/+/, '').replace(/\/+$/, '');
     // Strip any query string from route matching
     const qIdx = clean.indexOf('?');
@@ -50,7 +70,15 @@ export function App() {
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentPath(resolveCurrentRoute());
-      window.scrollTo(0, 0);
+      const rawHash = window.location.hash.replace(/^#+/, '');
+      if (rawHash && (rawHash === 'how-it-works' || rawHash === 'pricing' || rawHash === 'faq' || rawHash === 'contact')) {
+        setTimeout(() => {
+          const el = document.getElementById(rawHash);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 80);
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
     };
 
     window.addEventListener('hashchange', handleLocationChange);
@@ -67,9 +95,42 @@ export function App() {
   }, [currentPath]);
 
   const navigate = (path: string) => {
-    window.location.hash = path;
-    setCurrentPath(path);
-    window.scrollTo(0, 0);
+    // 1. In-page marketing section anchors
+    if (
+      path.startsWith('/#') ||
+      path.startsWith('#') ||
+      path === '/how-it-works' ||
+      path === '/pricing' ||
+      path === '/faq' ||
+      path === '/contact'
+    ) {
+      const sectionId = path.replace(/^\/?#?/, '');
+      const targetHash = sectionId ? `#${sectionId}` : '';
+
+      if (window.location.pathname !== '/' || window.location.hash.startsWith('#/')) {
+        window.history.pushState(null, '', '/' + targetHash);
+      } else {
+        window.history.pushState(null, '', targetHash || '/');
+      }
+      setCurrentPath('/');
+
+      setTimeout(() => {
+        if (sectionId) {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+            return;
+          }
+        }
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      }, 60);
+      return;
+    }
+
+    // 2. Full page routing with pushState
+    window.history.pushState(null, '', path);
+    setCurrentPath(resolveCurrentRoute());
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   // Route 1: QR Member Self Registration (/r/[slug])
@@ -81,9 +142,17 @@ export function App() {
       return <PublicRegistrationPage slug={slug} onNavigate={navigate} />;
     }
 
-    // Route 2: Public Marketing Homepage
-    if (currentPath === '/' || currentPath === '') {
-      return <MarketingPage onNavigate={navigate} />;
+    // Route 2: Public Marketing Homepage & Sections
+    if (
+      currentPath === '/' ||
+      currentPath === '' ||
+      currentPath === '/how-it-works' ||
+      currentPath === '/pricing' ||
+      currentPath === '/faq' ||
+      currentPath === '/contact'
+    ) {
+      const section = (currentPath === '/' || currentPath === '') ? undefined : currentPath.replace(/^\//, '');
+      return <MarketingPage onNavigate={navigate} targetSection={section} />;
     }
 
     // Route 3: Owner Sign Up

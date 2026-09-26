@@ -177,6 +177,10 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({ slug = 'overview
   const data = COMPARISONS[cleanSlug] || COMPARISONS['gymowl-alternative'];
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [cleanSlug]);
+
+  useEffect(() => {
     // Dynamic Schema Injection
     const schemaScript = document.createElement('script');
     schemaScript.type = 'application/ld+json';

@@ -29,9 +29,25 @@ import { Footer } from '../components/Footer';
 
 interface MarketingPageProps {
   onNavigate: (route: string) => void;
+  targetSection?: string;
 }
 
-export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate }) => {
+export const MarketingPage: React.FC<MarketingPageProps> = ({ onNavigate, targetSection }) => {
+  React.useEffect(() => {
+    const rawTarget = targetSection || (typeof window !== 'undefined' ? window.location.hash.replace(/^#+/, '') : '');
+    if (rawTarget && rawTarget !== '/') {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(rawTarget);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [targetSection]);
+
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });

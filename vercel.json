@@ -34,7 +34,7 @@
       ]
     },
     {
-      "source": "/(sitemap.xml|robots.txt|llms.txt|manifest.webmanifest|og-image.svg)",
+      "source": "/(sitemap.xml|robots.txt|llms.txt|manifest.webmanifest|og-image.svg|ads.txt)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -55,7 +55,7 @@
 
   "rewrites": [
     {
-      "source": "/(sitemap.xml|robots.txt|llms.txt|manifest.webmanifest|og-image.svg|sw.js|workbox-.*.js)",
+      "source": "/(sitemap.xml|robots.txt|llms.txt|manifest.webmanifest|og-image.svg|ads.txt|sw.js|workbox-.*.js)",
       "destination": "/$1"
     },
     {

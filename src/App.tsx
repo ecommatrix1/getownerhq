@@ -16,6 +16,7 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { DashboardProvider } from './components/DashboardContext';
 import { ThemeProvider } from './components/ThemeContext';
 import { PrintableStandeeModal } from './components/PrintableStandeeModal';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { DashboardOverview } from './pages/DashboardOverview';
@@ -286,6 +287,9 @@ export function App() {
         isOpen={isStandeeModalOpen}
         onClose={() => setIsStandeeModalOpen(false)}
       />
+
+      {/* Global Cookie & Tracking Consent Banner */}
+      <CookieConsentBanner onNavigate={navigate} />
     </ThemeProvider>
   );
 }

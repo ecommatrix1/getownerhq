@@ -15,6 +15,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +32,11 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
 
     if (password.length < 6) {
       setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (!agreeTerms) {
+      setErrorMsg('Please review and agree to the Terms of Service, Privacy Policy, and Email Consent to continue.');
       return;
     }
 
@@ -124,6 +130,9 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
                   required
                 />
               </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-tight">
+                Used for owner authentication, billing invoices, and critical security alerts.
+              </p>
             </div>
 
             <div>
@@ -141,6 +150,38 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
                   required
                 />
               </div>
+            </div>
+
+            {/* Explicit Legal & Email Consent Checkbox */}
+            <div className="pt-1 pb-1">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                  required
+                />
+                <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('/terms')}
+                    className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                  >
+                    Terms of Service
+                  </button>{' '}
+                  and{' '}
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('/privacy')}
+                    className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                  >
+                    Privacy Policy
+                  </button>
+                  , and give consent to receive transactional and operational emails for this gym account.
+                </span>
+              </label>
             </div>
 
             <button

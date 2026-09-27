@@ -153,17 +153,79 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
                 <span className="text-blue-600 font-mono text-sm">06.</span> Your Privacy Rights & Data Deletion
               </h2>
               <p>
-                You have the right to access, correct, export, or permanently delete your account and member data at any time. Gym owners can request full CSV exports or account termination by contacting our support team.
+                You have the right to access, correct, export, or permanently delete your account and member data at any time under applicable data protection laws, including India's Digital Personal Data Protection (DPDP) Act 2023. Gym owners can request full CSV exports or complete account deletion by contacting our support team.
               </p>
             </section>
 
             {/* Section 7 */}
-            <section className="space-y-4 pt-4 border-t border-slate-100">
+            <section className="space-y-4">
               <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <span className="text-blue-600 font-mono text-sm">07.</span> How Users Can Contact Us
+                <span className="text-blue-600 font-mono text-sm">07.</span> Cookies & Tracking Technologies Policy
               </h2>
               <p>
-                If you have any questions, concerns, or requests regarding this Privacy Policy or your data, please contact our privacy officer directly:
+                We use cookies, web beacons, and local browser storage to provide, protect, and improve our services. By using our website, you consent to our use of cookies in accordance with this policy.
+              </p>
+
+              <div className="space-y-3 pt-1">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                  <h3 className="font-bold text-slate-900 text-sm mb-1">A. Strictly Necessary & Functional Cookies</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    These cookies are essential for our website and gym dashboard to operate properly. They maintain authenticated user sessions, retain theme preferences, enforce Row-Level Security (RLS), and remember your consent settings. These cookies cannot be disabled without breaking application core functionality.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                  <h3 className="font-bold text-slate-900 text-sm mb-1">B. Performance & Analytics Cookies</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    These cookies allow us to count visits and traffic sources so we can measure and improve the performance of our site, track page response latencies, and identify popular features.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                  <h3 className="font-bold text-slate-900 text-sm mb-1">C. Third-Party Advertising & Google AdSense Disclosures</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                    Third-party vendors, including <strong>Google</strong>, use cookies to serve ads based on a user's prior visits to our website or other websites across the Internet:
+                  </p>
+                  <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
+                    <li>Google's use of advertising cookies enables it and its partners to serve relevant ads to our users based on their visits to our site and/or other sites on the Internet.</li>
+                    <li>Users may opt out of personalized advertising by visiting Google's <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold underline hover:text-blue-700">Ads Settings</a>.</li>
+                    <li>Alternatively, users can opt out of a third-party vendor's use of cookies for personalized advertising by visiting <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold underline hover:text-blue-700">www.aboutads.info</a>.</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 8 */}
+            <section className="space-y-4">
+              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span className="text-blue-600 font-mono text-sm">08.</span> Email Communications & Explicit Consent
+              </h2>
+              <p>
+                We respect your inbox and handle your email address with the highest degree of confidentiality:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1.5">
+                  <h3 className="font-bold text-slate-900 text-sm">Transactional & Account Emails</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    When you sign up for an owner account, you provide consent to receive critical transactional emails including login verification codes, password resets, subscription renewal receipts, and security alerts. These service notices are required for the safe operation of your gym dashboard.
+                  </p>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1.5">
+                  <h3 className="font-bold text-slate-900 text-sm">Marketing Communications & Opt-Out</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    We may occasionally send product feature updates, tips for growing your gym membership, or promotional offers. You may withdraw your consent and unsubscribe from promotional emails at any time by clicking the "Unsubscribe" link in any email footer or by writing to <a href="mailto:founderkraft@gmail.com" className="text-blue-600 font-medium underline">founderkraft@gmail.com</a>.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 9 */}
+            <section className="space-y-4 pt-4 border-t border-slate-100">
+              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span className="text-blue-600 font-mono text-sm">09.</span> How Users Can Contact Us
+              </h2>
+              <p>
+                If you have any questions, concerns, or requests regarding this Privacy Policy, your cookie preferences, or your email consent, please contact our data grievance officer directly:
               </p>
               
               <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-md space-y-3 text-sm">

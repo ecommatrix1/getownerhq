@@ -311,6 +311,18 @@ export const PublicRegistrationPage: React.FC<PublicRegistrationPageProps> = ({ 
                   </p>
                 </div>
 
+                {/* Consent & Communication notice */}
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed text-center px-1">
+                  By generating your pass, you consent to {gym.name} maintaining your membership pass and sending renewal notifications. Read our{' '}
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('/privacy')}
+                    className="text-brand-600 dark:text-brand-400 font-semibold underline hover:text-brand-500"
+                  >
+                    Privacy Policy
+                  </button>.
+                </p>
+
                 <button
                   type="submit"
                   disabled={loading}

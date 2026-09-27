@@ -35,21 +35,21 @@ export function App() {
     const hash = window.location.hash;
     const pathname = window.location.pathname;
 
-    // Check if hash represents a section anchor or route
-    if (hash && (hash === '#how-it-works' || hash === '#pricing' || hash === '#faq' || hash === '#contact')) {
+    // Check if hash represents a section anchor or route (including double hashes like #/#pricing or #/pricing)
+    const normalizedHash = (hash || '').replace(/^[#/]+/, '').toLowerCase();
+    if (
+      normalizedHash === 'pricing' ||
+      normalizedHash === 'how-it-works' ||
+      normalizedHash === 'faq' ||
+      normalizedHash === 'contact' ||
+      normalizedHash.endsWith('#pricing') ||
+      normalizedHash.endsWith('/pricing') ||
+      normalizedHash.endsWith('#how-it-works') ||
+      normalizedHash.endsWith('/how-it-works')
+    ) {
       raw = '/';
     } else if (hash && hash.startsWith('#/')) {
-      const hashRoute = hash.replace(/^#+/, '');
-      if (
-        hashRoute === '/how-it-works' ||
-        hashRoute === '/pricing' ||
-        hashRoute === '/faq' ||
-        hashRoute === '/contact'
-      ) {
-        raw = '/';
-      } else {
-        raw = hashRoute;
-      }
+      raw = hash.replace(/^#+/, '');
     } else {
       raw = pathname;
     }
@@ -143,15 +143,24 @@ export function App() {
     }
 
     // Route 2: Public Marketing Homepage & Sections
+    const cleanLower = currentPath.toLowerCase().replace(/^[#/]+/, '');
     if (
       currentPath === '/' ||
       currentPath === '' ||
-      currentPath === '/how-it-works' ||
-      currentPath === '/pricing' ||
-      currentPath === '/faq' ||
-      currentPath === '/contact'
+      cleanLower === 'how-it-works' ||
+      cleanLower === 'pricing' ||
+      cleanLower === 'faq' ||
+      cleanLower === 'contact' ||
+      cleanLower.endsWith('#pricing') ||
+      cleanLower.endsWith('/pricing') ||
+      cleanLower.endsWith('#how-it-works') ||
+      cleanLower.endsWith('/how-it-works')
     ) {
-      const section = (currentPath === '/' || currentPath === '') ? undefined : currentPath.replace(/^\//, '');
+      let section: string | undefined;
+      if (cleanLower.includes('pricing')) section = 'pricing';
+      else if (cleanLower.includes('how-it-works')) section = 'how-it-works';
+      else if (cleanLower.includes('faq')) section = 'faq';
+      else if (cleanLower.includes('contact')) section = 'contact';
       return <MarketingPage onNavigate={navigate} targetSection={section} />;
     }
 

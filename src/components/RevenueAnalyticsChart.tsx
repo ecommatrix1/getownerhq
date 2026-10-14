@@ -106,7 +106,7 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
               12-Month Revenue Comparison
             </h2>
           </div>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
             Month-over-month financial analytics & revenue growth trends
           </p>
         </div>
@@ -188,13 +188,13 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* Metric 1: Selected Timeframe Revenue & MoM Growth */}
-        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
+        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-300 dark:border-zinc-800 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             <span>Period Total</span>
             <div className={`flex items-center gap-1 font-bold text-xs px-2 py-0.5 rounded-full ${
               momGrowth >= 0 
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' 
-                : 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400'
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400' 
+                : 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-400'
             }`}>
               {momGrowth >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
               <span>{momGrowth >= 0 ? `+${momGrowth}%` : `${momGrowth}%`} MoM</span>
@@ -203,36 +203,36 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
           <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
             ₹{timeframeTotal.toLocaleString('en-IN')}
           </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-1">
+          <div className="text-[11px] text-slate-600 dark:text-slate-300 font-semibold mt-1">
             Compared to previous month (₹{previousMonthTotal.toLocaleString('en-IN')})
           </div>
         </div>
 
         {/* Metric 2: Monthly Average */}
-        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
+        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-300 dark:border-zinc-800 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             <span>Monthly Average</span>
-            <Activity className="w-4 h-4 text-blue-500" />
+            <Activity className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
             ₹{averageMonthly.toLocaleString('en-IN')}
-            <span className="text-xs font-normal text-slate-500 font-sans">/mo</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 font-sans">/mo</span>
           </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-1">
+          <div className="text-[11px] text-slate-700 dark:text-slate-200 font-bold mt-1">
             Average revenue over {activeMonths.length} active months
           </div>
         </div>
 
         {/* Metric 3: Peak Earning Month */}
-        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
+        <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-300 dark:border-zinc-800 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
             <span>Best Month Record</span>
             <Award className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-black font-mono text-slate-900 dark:text-white truncate">
             ₹{peakMonth.total.toLocaleString('en-IN')}
           </div>
-          <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1 uppercase tracking-wider">
+          <div className="text-[11px] text-amber-700 dark:text-amber-400 font-bold mt-1 uppercase tracking-wider">
             🏆 Peak Month: {peakMonth.label}
           </div>
         </div>
@@ -285,7 +285,7 @@ export const RevenueAnalyticsChart: React.FC<RevenueAnalyticsChartProps> = ({ pa
 
                 {/* Month X-Axis Label */}
                 <div className={`mt-2 text-xs font-bold uppercase tracking-wider ${
-                  isCurrentMonth ? 'text-blue-600 dark:text-blue-400 font-black' : 'text-slate-500 dark:text-slate-400'
+                  isCurrentMonth ? 'text-blue-700 dark:text-blue-400 font-black' : 'text-slate-700 dark:text-slate-300'
                 }`}>
                   {m.label}
                 </div>

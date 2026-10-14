@@ -176,8 +176,8 @@ export const WhatsAppTemplatesPage: React.FC = () => {
       
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">WhatsApp Message Templates</h1>
-        <p className="text-sm font-medium text-slate-500">
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">WhatsApp Message Templates</h1>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
           Customized Renewal Messages for {gym.name}
         </p>
       </div>

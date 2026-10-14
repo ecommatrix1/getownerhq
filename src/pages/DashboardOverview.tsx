@@ -241,7 +241,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
               <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-slate-900 dark:text-white tracking-tight leading-none">
                 {isMembersRoute ? 'Members Directory' : 'Dashboard'}
               </h1>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2">
                 {isMembersRoute ? 'Home › Members Directory & Management' : 'Home › Overview'}
               </p>
             </div>
@@ -656,11 +656,11 @@ const MetricCard = ({ label, value, icon: Icon, tone = 'brand', onClick, active,
       <div className="relative font-mono font-extrabold text-3xl text-slate-900 dark:text-slate-50 leading-none [font-variant-numeric:tabular-nums]">
         {value}
       </div>
-      <div className="relative text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1.5 leading-tight">
+      <div className="relative text-[11px] font-extrabold text-slate-800 dark:text-slate-100 mt-1.5 leading-tight">
         {label}
       </div>
       {subtitle && (
-        <div className="relative text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{subtitle}</div>
+        <div className="relative text-[10px] font-bold text-slate-700 dark:text-slate-300 mt-0.5">{subtitle}</div>
       )}
     </button>
   );

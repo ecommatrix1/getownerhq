@@ -73,7 +73,7 @@ export const PlansPage: React.FC = () => {
             <Layers className="w-6 h-6 text-brand-500" />
             Membership Plans Manager
           </h1>
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">
             {gym.name} • Manage pricing tiers, durations, and subscription options
           </p>
         </div>
@@ -126,7 +126,7 @@ export const PlansPage: React.FC = () => {
         <form onSubmit={handleAddPlan} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-1.5">
                 Plan Name
               </label>
               <input
@@ -134,13 +134,13 @@ export const PlansPage: React.FC = () => {
                 placeholder="e.g. 6-Month Half Yearly Saver"
                 value={newPlanName}
                 onChange={(e) => setNewPlanName(e.target.value)}
-                className="w-full text-sm font-medium text-slate-900 dark:text-white p-2.5 border border-slate-300 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800/80 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+                className="w-full text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-600 dark:placeholder:text-slate-300 p-2.5 border-2 border-slate-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 focus:outline-none shadow-sm"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-1.5">
                 Duration (Months)
               </label>
               <input
@@ -150,13 +150,13 @@ export const PlansPage: React.FC = () => {
                 placeholder="1"
                 value={newPlanDuration}
                 onChange={(e) => setNewPlanDuration(Number(e.target.value))}
-                className="w-full text-sm font-mono font-bold text-slate-900 dark:text-white p-2.5 border border-slate-300 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800/80 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+                className="w-full text-sm font-mono font-bold text-slate-900 dark:text-white p-2.5 border-2 border-slate-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 focus:outline-none shadow-sm"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-1.5">
                 Price (₹)
               </label>
               <input
@@ -165,7 +165,7 @@ export const PlansPage: React.FC = () => {
                 placeholder="1500"
                 value={newPlanPrice}
                 onChange={(e) => setNewPlanPrice(Number(e.target.value))}
-                className="w-full text-sm font-mono font-bold text-slate-900 dark:text-white p-2.5 border border-slate-300 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800/80 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+                className="w-full text-sm font-mono font-bold text-slate-900 dark:text-white p-2.5 border-2 border-slate-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 focus:outline-none shadow-sm"
                 required
               />
             </div>

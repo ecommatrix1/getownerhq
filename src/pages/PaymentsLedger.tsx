@@ -141,8 +141,8 @@ export const PaymentsLedger: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Payments Ledger</h1>
-          <p className="text-sm font-medium text-slate-500">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Payments Ledger</h1>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
             {gym.name} • Payment Receipts & Financial Records
           </p>
         </div>

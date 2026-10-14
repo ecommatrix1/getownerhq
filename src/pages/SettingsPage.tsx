@@ -119,8 +119,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Gym Settings & Standee</h1>
-          <p className="text-sm font-medium text-slate-500">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gym Settings & Standee</h1>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             {gym.name} • Setup Profile, Custom Plans & Printable QR Poster
           </p>
         </div>
@@ -147,35 +147,35 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
         <div className="lg:col-span-2 space-y-6">
           
           {/* Gym Details */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h2 className="text-lg font-extrabold text-slate-900 mb-6 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-blue-600" /> Gym Business Profile
             </h2>
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Gym Name
                   </label>
                   <input
                     type="text"
                     value={gymName}
                     onChange={(e) => setGymName(e.target.value)}
-                    className="w-full text-sm font-bold text-slate-900 p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    className="w-full text-sm font-bold text-slate-900 dark:text-white p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     City / Branch Location
                   </label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full text-sm font-bold text-slate-900 p-2.5 border border-slate-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:outline-none bg-slate-50"
+                    className="w-full text-sm font-bold text-slate-900 dark:text-white p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500/40 focus:outline-none bg-slate-50 dark:bg-slate-800/80 transition-colors"
                     required
                   />
                 </div>
@@ -279,7 +279,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
             </p>
 
             <div className="bg-white/10 p-3 rounded-xl border border-white/20 text-xs font-mono font-medium mb-6 truncate text-blue-400">
-              getownerhq.in/#/r/{gym.slug}
+              getownerhq.in/r/{gym.slug}
             </div>
 
             <button
@@ -291,21 +291,21 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenStandee }) => 
           </div>
 
           {/* Preferences / Toggles */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
               <Bell className="w-4 h-4 text-blue-600" /> Dashboard Preferences
             </h3>
 
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
               <div>
-                <div className="text-sm font-bold text-slate-900">Auto-Prioritize Expiring</div>
-                <div className="text-xs font-medium text-slate-500 mt-0.5">Show members expiring within 3 days on load</div>
+                <div className="text-sm font-bold text-slate-900 dark:text-white">Auto-Prioritize Expiring</div>
+                <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Show members expiring within 3 days on load</div>
               </div>
               <input
                 type="checkbox"
                 checked={autoFilterExpiring}
                 onChange={(e) => setAutoFilterExpiring(e.target.checked)}
-                className="w-4 h-4 text-blue-600 accent-blue-600 rounded cursor-pointer border-slate-300"
+                className="w-4 h-4 text-blue-600 accent-blue-600 rounded cursor-pointer border-slate-300 dark:border-slate-600"
               />
             </div>
           </div>

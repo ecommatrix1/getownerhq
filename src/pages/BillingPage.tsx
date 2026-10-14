@@ -224,23 +224,23 @@ export const BillingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Starter Plan */}
             <div
-              className={`bg-white p-6 rounded-2xl border ${currentPlan === "Starter" && currentStatus === "active" ? "border-2 border-brand-500 shadow-md ring-2 ring-brand-500/20" : "border-slate-200"} flex flex-col justify-between`}>
+              className={`bg-white dark:bg-slate-900 p-6 rounded-2xl border ${currentPlan === "Starter" && currentStatus === "active" ? "border-2 border-brand-500 shadow-md ring-2 ring-brand-500/20" : "border-slate-200 dark:border-slate-800"} flex flex-col justify-between transition-colors`}>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   Starter
                 </div>
-                <h4 className="text-xl font-extrabold text-slate-900">
+                <h4 className="text-xl font-extrabold text-slate-900 dark:text-white">
                   Under 100 Members
                 </h4>
                 <div className="flex items-baseline gap-1 my-3">
-                  <span className="text-3xl font-extrabold font-mono text-slate-900">
+                  <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
                     ₹499
                   </span>
-                  <span className="text-xs font-medium text-slate-500">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                     / mo
                   </span>
                 </div>
-                <ul className="space-y-2.5 text-xs font-medium text-slate-600 mb-6">
+                <ul className="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 mb-6">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-semantic-green" /> Up to 100
                     members
@@ -258,7 +258,7 @@ export const BillingPage: React.FC = () => {
               <button
                 onClick={() => handleTriggerCashfree("Starter", 499)}
                 disabled={checkoutLoading}
-                className="w-full py-2.5 bg-slate-100 text-slate-800 font-bold text-sm rounded-xl hover:bg-slate-200 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
                 {checkoutLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : currentPlan === "Starter" && currentStatus === "active" ? (
@@ -271,19 +271,19 @@ export const BillingPage: React.FC = () => {
 
             {/* Growth Plan */}
             <div
-              className={`bg-white p-6 rounded-2xl border-2 border-brand-500 shadow-md flex flex-col justify-between relative`}>
+              className={`bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-brand-500 shadow-md flex flex-col justify-between relative transition-colors`}>
               <div className="absolute -top-3 left-6 bg-gradient-brand text-white font-extrabold text-[9px] uppercase px-3 py-1 rounded-full shadow-glow-brand tracking-wider">
                 Recommended
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 mb-1 mt-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 mb-1 mt-1">
                   Growth
                 </div>
-                <h4 className="text-xl font-extrabold text-slate-900">
+                <h4 className="text-xl font-extrabold text-slate-900 dark:text-white">
                   Unlimited
                 </h4>
                 <div className="flex items-baseline gap-1 my-3">
-                  <span className="text-3xl font-extrabold font-mono text-slate-900">
+                  <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
                     ₹999
                   </span>
                   <span className="text-xs font-medium text-slate-500">

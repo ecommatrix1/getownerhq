@@ -40,10 +40,10 @@ const PAGE_SEO: Record<string, SeoConfig> = {
   },
   '/about': {
     title: 'About getOwnerHQ — Our Mission & Team',
-    description: 'Learn about getOwnerHQ, India\'s leading gym management software built by FounderKraft in Assam. We help gym owners automate member tracking and renewals.',
-    keywords: 'about getownerhq, founderkraft, gym software india, assam startup',
+    description: 'Learn about getOwnerHQ, India\'s leading gym management software founded and developed by Ali (FounderKraft) in Assam. We help gym owners automate member tracking and renewals.',
+    keywords: 'about getownerhq, ali, founderkraft, gym software india, assam startup, ali developer',
     ogTitle: 'About getOwnerHQ',
-    ogDescription: 'India\'s leading gym management software built by FounderKraft.',
+    ogDescription: 'India\'s leading gym management software founded and developed by Ali (FounderKraft).',
     ogImage: `${SITE}/og-image.svg`,
   },
   '/terms': {

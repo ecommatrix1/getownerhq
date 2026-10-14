@@ -1,6 +1,11 @@
 # getOwnerHQ
 
 > getOwnerHQ is a multi-tenant management platform built for Indian gym owners, fitness studios, MMA clubs, and athletic academies.
+> Founded and developed by Ali (FounderKraft, Assam, India).
+
+## Leadership
+- **Founder & Lead Developer**: Ali (FounderKraft)
+- **HQ**: Assam, India
 
 ## System Overview
 - [Home](https://www.getownerhq.in/): Primary landing page and platform features.

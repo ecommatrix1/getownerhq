@@ -55,10 +55,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <span className="text-blue-600 font-mono text-sm">Our Team</span>
+                <span className="text-blue-600 font-mono text-sm">Founder & Developer</span>
               </h2>
               <p>
-                getOwnerHQ is created and maintained by **FounderKraft**. We are a software development team based out of **Assam, India**, dedicated to building highly practical utility tools for small and medium businesses.
+                getOwnerHQ was founded and developed by <strong>Ali</strong> (FounderKraft). Based out of Assam, India, Ali designed and engineered getOwnerHQ as an intuitive, high-speed, mobile-first management platform specifically built for Indian gym owners, fitness clubs, personal training studios, and sports academies seeking a modern, localized alternative to complex and expensive software.
               </p>
             </section>
 

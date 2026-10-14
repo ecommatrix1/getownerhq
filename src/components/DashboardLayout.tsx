@@ -129,7 +129,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <div className="text-left hidden sm:block">
                 <div className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5 leading-none">
                   {safeGym.name}
-                  <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-mono uppercase">
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono uppercase font-bold ${
+                    safeGym.subscription_status === 'active'
+                      ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+                      : safeGym.subscription_status === 'trial'
+                      ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400'
+                      : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'
+                  }`}>
                     {safeGym.subscription_status}
                   </span>
                 </div>

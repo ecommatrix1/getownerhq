@@ -4,9 +4,9 @@ import { Gym, GymPlan, Member, Payment, WhatsAppTemplate } from "../types";
 export const DEFAULT_TEMPLATES: WhatsAppTemplate[] = [
   {
     id: "tpl-1",
-    title: "Stage 1: Renewal Reminder",
+    title: "Stage 1: Renewal Reminder (Meta Approved)",
     category: "reminder",
-    body: "Hi {member_name}! Your membership at {gym_name} is expiring on {expiry_date}. We'd love to have you continue training with us — renew anytime at the front desk or via UPI: {upi_id}. See you soon!",
+    body: "Hi {member_name}, your membership at {gym_name} expires on {expiry_date}. Please contact your gym to renew your membership and continue your workouts without interruption. Thank you!",
   },
   {
     id: "tpl-2",

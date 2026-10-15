@@ -115,6 +115,9 @@ export const WhatsAppTemplatesPage: React.FC = () => {
         body: JSON.stringify({
           gym_id: gym.id,
           recipient_phone: testPhone,
+          template_name: 'gym_expiry_reminder_',
+          member_name: gym.owner_name || 'Ali',
+          expiry_date: new Date(Date.now() + 3 * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
           message_text: `🏋️ Test Message from ${gym.name}!\n\nThis confirms your OwnerHQ Official WhatsApp Cloud API connection is active and operational. Messages will dispatch directly from your official number!`,
         }),
       });

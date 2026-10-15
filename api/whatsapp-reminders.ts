@@ -45,6 +45,24 @@ function getDateStringWithOffset(offsetDays: number): string {
 }
 
 /**
+ * Format date nicely for WhatsApp display (e.g. 25 Oct 2026)
+ */
+function formatDisplayDate(dateStr: string): string {
+  try {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, monthIndex, day);
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+  } catch (_) {}
+  return dateStr;
+}
+
+/**
  * Normalize phone to E.164 without leading plus (Meta standard, e.g. 919876543210)
  */
 function normalizePhone(phone: string): string {
@@ -147,7 +165,7 @@ export default async function handler(req: any, res: any) {
             .digest('hex');
 
           const recipientPhone = normalizePhone(member.mobile);
-          const templateName = 'membership_expiry_reminder';
+          const templateName = 'gym_expiry_reminder_';
 
           // 3. Pre-Flight Claim: Atomic INSERT with 'sending' status to prevent race conditions
           const { data: claimRecord, error: claimErr } = await supabase
@@ -177,6 +195,7 @@ export default async function handler(req: any, res: any) {
           // 4. Dispatch official WhatsApp message via Meta Graph API
           try {
             const sendUrl = `${META_GRAPH_BASE}/${phoneNumberId}/messages`;
+            const formattedDate = formatDisplayDate(member.expiry_date || targetDate);
             const payload = {
               messaging_product: 'whatsapp',
               recipient_type: 'individual',
@@ -191,7 +210,7 @@ export default async function handler(req: any, res: any) {
                     parameters: [
                       { type: 'text', text: member.full_name || 'Member' },
                       { type: 'text', text: gymName },
-                      { type: 'text', text: member.expiry_date || targetDate },
+                      { type: 'text', text: formattedDate },
                     ],
                   },
                 ],

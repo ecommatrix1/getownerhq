@@ -171,18 +171,32 @@ export default async function handler(req: any, res: any) {
       message_text ||
       `Hello! This is an official test message from ${gymData.name} via OwnerHQ WhatsApp Cloud API. Your connection is live and verified!`;
 
+    const templateName = req.body?.template_name || 'gym_expiry_reminder_';
+    const memberName = req.body?.member_name || 'Ali';
+    const gymName = gymData.name || 'OwnerHQ Gym';
+    const expiryDate = req.body?.expiry_date || '25 Oct 2026';
+
     // 4. Send official WhatsApp template message via Meta Graph API
-    // Note: Meta requires a pre-approved template for business-initiated messages outside the 24h window.
-    // 'hello_world' is Meta's built-in default template available across all WhatsApp Business Accounts.
+    // Uses the approved 'gym_expiry_reminder_' template with 3 variables
     const sendUrl = `${META_GRAPH_BASE}/${phoneNumberId}/messages`;
-    const templatePayload = {
+    let templatePayload: any = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
       to: formattedRecipient,
       type: 'template',
       template: {
-        name: 'hello_world',
-        language: { code: 'en_US' },
+        name: templateName,
+        language: { code: 'en' },
+        components: [
+          {
+            type: 'body',
+            parameters: [
+              { type: 'text', text: memberName },
+              { type: 'text', text: gymName },
+              { type: 'text', text: expiryDate },
+            ],
+          },
+        ],
       },
     };
 
@@ -197,7 +211,43 @@ export default async function handler(req: any, res: any) {
 
     let metaData = await metaRes.json();
 
-    // If hello_world template isn't available in en_US, retry with free-form text fallback
+    // If template failed on language 'en', attempt 'en_US'
+    if (!metaRes.ok && (metaData.error?.code === 100 || metaData.error?.error_subcode === 2388044)) {
+      templatePayload.template.language = { code: 'en_US' };
+      metaRes = await fetch(sendUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(templatePayload),
+      });
+      metaData = await metaRes.json();
+    }
+
+    // Fallback 1: Built-in 'hello_world' template
+    if (!metaRes.ok && metaData.error?.code === 100) {
+      metaRes = await fetch(sendUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: formattedRecipient,
+          type: 'template',
+          template: {
+            name: 'hello_world',
+            language: { code: 'en_US' },
+          },
+        }),
+      });
+      metaData = await metaRes.json();
+    }
+
+    // Fallback 2: Direct free-form text (if inside customer service window)
     if (!metaRes.ok && metaData.error?.code === 100) {
       const textPayload = {
         messaging_product: 'whatsapp',

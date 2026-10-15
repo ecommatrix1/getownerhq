@@ -9,11 +9,11 @@ function verifyCashfreeSignature(payload: string, signature: string, secret: str
 }
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") {
+  if (req.method !== "POST" && req.method !== "GET") {
     return res.status(405).send("Method not allowed");
   }
 
-  // Verify Cashfree webhook signature
+  // Verify Cashfree webhook signature if provided (e.g. from server callback)
   const signature = req.headers['x-webhook-signature'] || req.headers['X-Webhook-Signature'];
   const clientSecret = process.env.CASHFREE_CLIENT_SECRET;
 
@@ -23,10 +23,6 @@ export default async function handler(req: any, res: any) {
       console.error('[Cashfree Return] Invalid webhook signature');
       return res.status(401).send('Invalid webhook signature');
     }
-  } else if (clientSecret) {
-    // Signature header missing but we have secret configured - reject
-    console.error('[Cashfree Return] Missing webhook signature header');
-    return res.status(401).send('Missing webhook signature');
   }
 
   try {

@@ -15,6 +15,7 @@ export const WhatsAppTemplatesPage: React.FC = () => {
   const [waNotice, setWaNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [testPhone, setTestPhone] = useState<string>('8876640141');
   const [isSendingTest, setIsSendingTest] = useState(false);
+  const [isRunningReminders, setIsRunningReminders] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
 
   useEffect(() => {
@@ -142,6 +143,40 @@ export const WhatsAppTemplatesPage: React.FC = () => {
     }
   };
 
+  const handleRunRemindersNow = async () => {
+    setIsRunningReminders(true);
+    setWaNotice(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        setWaNotice({ type: 'error', message: 'Authentication required. Please log in.' });
+        setIsRunningReminders(false);
+        return;
+      }
+      const res = await fetch('/api/whatsapp-reminders', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setWaNotice({
+          type: 'success',
+          message: `Automated Scan Complete: ${data.dispatched || 0} messages sent, ${data.skipped || 0} skipped (already notified), ${data.errors || 0} errors.`,
+        });
+      } else {
+        setWaNotice({ type: 'error', message: data.error || 'Failed to execute reminders scan' });
+      }
+    } catch (err: any) {
+      setWaNotice({ type: 'error', message: err.message || 'Error running reminders' });
+    } finally {
+      setIsRunningReminders(false);
+    }
+  };
+
   const sampleMember = {
     full_name: 'Rahul Sharma',
     mobile: '9876543210',
@@ -259,6 +294,19 @@ export const WhatsAppTemplatesPage: React.FC = () => {
               >
                 <Send className="w-3.5 h-3.5" />
                 Send Test Message
+              </button>
+              <button
+                onClick={handleRunRemindersNow}
+                disabled={isRunningReminders}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 shadow-sm"
+                title="Trigger automated scan for all expiring gym members right now"
+              >
+                {isRunningReminders ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                Run Expiry Reminders Now
               </button>
               <button
                 onClick={handleConnectWhatsApp}

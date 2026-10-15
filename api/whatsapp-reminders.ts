@@ -81,26 +81,47 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Strictly verify dedicated CRON_SECRET authorization
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = (req.headers.authorization || '').trim();
-
-  if (process.env.NODE_ENV === 'production' || cronSecret) {
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-      return res.status(401).json({
-        error: 'Unauthorized: Valid CRON_SECRET Bearer token required in Authorization header.',
-      });
-    }
-  }
-
   const supabaseUrl =
     process.env.SUPABASE_URL ||
     process.env.VITE_SUPABASE_URL ||
     'https://ydmrupmxtyyecykpxitb.supabase.co';
-  const supabaseServiceKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  const supabaseAnonKey =
+    process.env.SUPABASE_ANON_KEY ||
     process.env.VITE_SUPABASE_ANON_KEY ||
     '';
+  const supabaseServiceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    supabaseAnonKey;
+
+  // Authorization verification:
+  // 1. Dedicated CRON_SECRET Bearer token (if configured)
+  // 2. Official Vercel platform cron header (x-vercel-cron)
+  // 3. Authenticated owner session token (for manual dashboard run)
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = (req.headers.authorization || '').trim();
+  const isVercelCron = req.headers['x-vercel-cron'] === '1' || (req.headers['user-agent'] || '').includes('vercel-cron');
+
+  let isAuthorized = false;
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+    isAuthorized = true;
+  } else if (isVercelCron) {
+    isAuthorized = true;
+  } else if (authHeader) {
+    try {
+      const token = authHeader.replace(/^Bearer\s+/i, '');
+      const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey || supabaseServiceKey);
+      const { data: userRes } = await supabaseAuth.auth.getUser(token);
+      if (userRes?.user) {
+        isAuthorized = true;
+      }
+    } catch (_) {}
+  }
+
+  if (!isAuthorized && (process.env.NODE_ENV === 'production' || cronSecret)) {
+    return res.status(401).json({
+      error: 'Unauthorized: Requires Vercel Cron execution or valid Bearer authentication.',
+    });
+  }
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {

@@ -230,14 +230,18 @@ export function App() {
       cleanPath === '/dashboard' ||
       cleanPath === '/dashboard/' ||
       cleanPath === '/app' ||
+      cleanPath === '/app/' ||
       cleanPath === '/dashboard/members' ||
       cleanPath === '/dashboard/members/' ||
+      cleanPath === '/app/members' ||
+      cleanPath === '/app/members/' ||
       cleanPath === '/members' ||
       cleanPath === '/members/'
     ) {
       dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
     } else if (
       cleanPath === '/dashboard/payments' ||
+      cleanPath === '/app/payments' ||
       cleanPath === '/payments' ||
       cleanPath === '/payment' ||
       cleanPath === '/pmnt' ||
@@ -247,15 +251,23 @@ export function App() {
       cleanPath.includes('pmnt')
     ) {
       dashboardContent = <PaymentsLedger />;
-    } else if (cleanPath === '/dashboard/plans' || cleanPath === '/plans') {
+    } else if (cleanPath === '/dashboard/plans' || cleanPath === '/app/plans' || cleanPath === '/plans') {
       dashboardContent = <PlansPage />;
-    } else if (cleanPath === '/dashboard/whatsapp' || cleanPath === '/whatsapp') {
+    } else if (
+      cleanPath === '/dashboard/whatsapp' ||
+      cleanPath === '/app/whatsapp' ||
+      cleanPath === '/whatsapp' ||
+      cleanPath === '/whatsapp-templates' ||
+      cleanPath === '/dashboard/whatsapp-templates' ||
+      cleanPath === '/app/whatsapp-templates' ||
+      cleanPath.includes('whatsapp')
+    ) {
       dashboardContent = <WhatsAppTemplatesPage />;
-    } else if (cleanPath === '/dashboard/settings' || cleanPath === '/settings') {
+    } else if (cleanPath === '/dashboard/settings' || cleanPath === '/app/settings' || cleanPath === '/settings') {
       dashboardContent = <SettingsPage onOpenStandee={() => setIsStandeeModalOpen(true)} />;
-    } else if (cleanPath === '/dashboard/billing' || cleanPath === '/billing') {
+    } else if (cleanPath === '/dashboard/billing' || cleanPath === '/app/billing' || cleanPath === '/billing') {
       dashboardContent = <BillingPage />;
-    } else if (cleanPath.startsWith('/dashboard')) {
+    } else if (cleanPath.startsWith('/dashboard') || cleanPath.startsWith('/app')) {
       // Safe fallback for any unspecified dashboard routes
       dashboardContent = <DashboardOverview currentPath={currentPath} onNavigate={navigate} />;
     } else {
